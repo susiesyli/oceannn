@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "filesystem": "cpp",
+        "__node_handle": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp",
+        "new": "cpp",
+        "memory": "cpp"
+    }
+}

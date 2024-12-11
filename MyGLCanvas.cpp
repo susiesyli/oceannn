@@ -13,9 +13,9 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	viewAngle = 60;
 	clipNear = 0.01f;
 	clipFar = 20.0f;
-	scaleFactor = 1.0f;
+	// scaleFactor = 1.0f;
 	lightAngle = 0.0f;
-	textureBlend = 0.0f;
+	// textureBlend = 0.0f;
 
 	useDiffuse = false;
 
@@ -88,7 +88,7 @@ void MyGLCanvas::drawScene() {
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(scaleFactor, scaleFactor, scaleFactor));
+	// modelMatrix = glm::scale(modelMatrix, glm::vec3(scaleFactor, scaleFactor, scaleFactor));
 
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 
@@ -112,7 +112,7 @@ void MyGLCanvas::drawScene() {
 	GLint projLoc = glGetUniformLocation(objectShaderProgram, "projection");
 	GLint lightPosLoc = glGetUniformLocation(objectShaderProgram, "lightPos");
 	GLint viewPosLoc = glGetUniformLocation(objectShaderProgram, "viewPos");
-	GLint textureBlendLoc = glGetUniformLocation(objectShaderProgram, "textureBlend");
+	// GLint textureBlendLoc = glGetUniformLocation(objectShaderProgram, "textureBlend");
 	GLint useDiffuseLoc = glGetUniformLocation(objectShaderProgram, "useDiffuse");
 
 	// Pass matrix uniforms
@@ -125,7 +125,7 @@ void MyGLCanvas::drawScene() {
 	glm::vec4 rotatedEye = glm::inverse(viewMatrix) * glm::vec4(eyePosition, 1.0f);
 	glm::vec3 transformedEye = glm::vec3(rotatedEye);
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(transformedEye));
-	glUniform1f(textureBlendLoc, textureBlend);
+	// glUniform1f(textureBlendLoc, textureBlend);
 	glUniform1i(useDiffuseLoc, useDiffuse);
 
 	// Pass texture units
