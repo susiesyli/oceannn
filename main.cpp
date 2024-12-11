@@ -205,7 +205,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 
 
 	//slider for controlling rotation
-    rotXTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateX");
+    Fl_Box* rotXTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateX");
 	rotXSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	rotXSlider->align(FL_ALIGN_TOP);
 	rotXSlider->type(FL_HOR_SLIDER);
@@ -214,9 +214,9 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	rotXSlider->value(canvas->rotWorldVec.x);
 	rotXSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.x)));
 
- 	Fl_Box* rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
+ 	// rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
 
-	rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
+	Fl_Box* rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
 	rotYSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	rotYSlider->align(FL_ALIGN_TOP);
 	rotYSlider->type(FL_HOR_SLIDER);
@@ -225,7 +225,9 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	rotYSlider->value(canvas->rotWorldVec.y);
 	rotYSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.y)));
 
-	rotZTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateZ");
+ 	// Fl_Box* ro/tZTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
+
+	Fl_Box*  rotZTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateZ");
 	rotZSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	rotZSlider->align(FL_ALIGN_TOP);
 	rotZSlider->type(FL_HOR_SLIDER);
