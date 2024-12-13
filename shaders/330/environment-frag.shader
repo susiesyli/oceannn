@@ -6,26 +6,29 @@ uniform sampler2D environMap;
 
 out vec4 outputColor;
 
-vec2 textureLocation(vec3 point) {
-    // Simple spherical mapping for environment sphere
-    vec3 norm = normalize(point);
-    
-    // Convert to spherical coordinates
-    float phi = -atan(norm.z, -norm.x);
-    float theta = acos(norm.y);
-    
-    // Map to texture coordinates
-    vec2 coord = vec2(
-        0.5 + phi / (2.0 * 3.14159),
-        theta / 3.14159
-    );
-    
-    return coord;
+vec2 textureLocationCube(vec3 point) {
+    vec3 absPoint = abs(point);
+    vec2 uv;
+
+    if (absPoint.x >= absPoint.y && absPoint.x >= absPoint.z) {
+        // X face
+        uv = point.x > 0.0 ? vec2(-point.z, -point.y) : vec2(point.z, -point.y);
+        uv = uv * 0.5 + 0.5;
+    } else if (absPoint.y >= absPoint.x && absPoint.y >= absPoint.z) {
+        // Y face
+        uv = point.y > 0.0 ? vec2(point.x, point.z) : vec2(point.x, -point.z);
+        uv = uv * 0.5 + 0.5;
+    } else {
+        // Z face
+        uv = point.z > 0.0 ? vec2(point.x, -point.y) : vec2(-point.x, -point.y);
+        uv = uv * 0.5 + 0.5; 
+    }
+
+    return uv;
 }
 
 void main()
 {	
-    // Sample the environment map using spherical coordinates
-    vec2 texCoord = textureLocation(fragPosition);
+    vec2 texCoord = textureLocationCube(normalize(fragPosition));
     outputColor = texture(environMap, texCoord);
 }

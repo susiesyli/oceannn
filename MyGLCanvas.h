@@ -42,6 +42,7 @@ public:
 	float clipFar;
 	float scaleFactor;
 	float textureBlend;
+	int tilingNumber;
 
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
 	~MyGLCanvas();
