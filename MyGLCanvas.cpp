@@ -23,8 +23,8 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 
 	myTextureManager = new TextureManager();
 	myShaderManager = new ShaderManager();
-	myObjectPLY = new ply("./data/sphere.ply");
-	myEnvironmentPLY = new ply("./data/sphere.ply");
+	myObjectPLY = new ply("./data/cube.ply");
+	myEnvironmentPLY = new ply("./data/cube.ply");
 }
 
 MyGLCanvas::~MyGLCanvas() {
