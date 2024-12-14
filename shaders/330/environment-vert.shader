@@ -12,8 +12,8 @@ out vec3 fragPosition;
 void main()
 {
     // Transform vertex position to world space
-    fragPosition = vec3(model * vec4(myPosition, 1));
+    fragPosition = vec3(model * vec4(myPosition, 1.0));
     
     // Compute final vertex position
-    gl_Position = projection * view * model * vec4(myPosition, 1);
+    gl_Position = projection * view * model * vec4(myPosition, 1.0);
 }

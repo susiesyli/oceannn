@@ -33,6 +33,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myShaderManager = new ShaderManager();
 	myObjectPLY = new ply("./data/cube.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
+	mySunPLY = new ply("./data/sphere.ply");
 }
 
 MyGLCanvas::~MyGLCanvas() {
@@ -53,6 +54,10 @@ void MyGLCanvas::initShaders() {
 	myShaderManager->addShaderProgram("environmentShaders", "shaders/330/environment-vert.shader", "shaders/330/environment-frag.shader");
 	myEnvironmentPLY->buildArrays();
 	myEnvironmentPLY->bindVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
+
+	myShaderManager->addShaderProgram("sunShaders", "shaders/330/sun-vert.shader", "shaders/330/sun-frag.shader");
+	mySunPLY->buildArrays();
+	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
 
 
@@ -203,6 +208,30 @@ void MyGLCanvas::drawScene() {
 	glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
 
 	myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
+
+	// draw sun sphere
+	glUseProgram(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+	// Get shader program
+	GLuint sunShaderProgram = myShaderManager->getShaderProgram("sunShaders")->programID;
+
+	// Variable binding for environment shader
+	GLint sunModelLoc = glGetUniformLocation(sunShaderProgram, "sunModel");
+	GLint sunViewLoc = glGetUniformLocation(sunShaderProgram, "sunView");
+	GLint sunProjLoc = glGetUniformLocation(sunShaderProgram, "sunProjection");
+
+	// Create sun model matrix (scaled up) 
+	glm::mat4 sunModelMatrix = glm::mat4(1.0f);
+
+	sunModelMatrix = glm::translate(sunModelMatrix, glm::vec3(lightPos));
+	sunModelMatrix = glm::scale(sunModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+
+	// Pass matrix uniforms for environment shader
+	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
+	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+
+	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
 
 
@@ -277,3 +306,4 @@ void MyGLCanvas::loadObjectTexture(std::string filename) {
 	myTextureManager->deleteTexture("objectTexture");
 	myTextureManager->loadTexture("objectTexture", filename);
 }
+

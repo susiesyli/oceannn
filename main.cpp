@@ -183,7 +183,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	lightIntensitySlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	lightIntensitySlider->align(FL_ALIGN_TOP);
 	lightIntensitySlider->type(FL_HOR_SLIDER);
-	lightIntensitySlider->bounds(0, 1);
+	lightIntensitySlider->bounds(0, 0.75f);
 	lightIntensitySlider->step(0.01);
 	lightIntensitySlider->value(canvas->lightAngle);
 	lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));

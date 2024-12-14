@@ -47,8 +47,9 @@ void main() {
     vec3 norm = normalize(fragNormal);
     vec3 lightDir = normalize(lightPos - fragPosition);
     float diff = max(dot(norm, lightDir), 0.0);
+    diff += lightIntensity;
 
     diffuseColor = vec4(diff * vec3(1.0), 1.0);
 
-    outputColor = finalTexture * diffuseColor + lightIntensity;
+    outputColor = finalTexture * diffuseColor;
 }

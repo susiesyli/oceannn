@@ -73,6 +73,7 @@ private:
 	ShaderManager* myShaderManager;
 	ply* myObjectPLY;
 	ply* myEnvironmentPLY;
+	ply* mySunPLY;
 
 	glm::mat4 perspectiveMatrix;
 
