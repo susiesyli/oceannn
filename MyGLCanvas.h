@@ -16,6 +16,7 @@
 #include <glm/glm.hpp>
 #include <time.h>
 #include <iostream>
+#include <chrono>
 
 #include "TextureManager.h"
 #include "ShaderManager.h"
@@ -42,7 +43,12 @@ public:
 	float clipFar;
 	float scaleFactor;
 	float textureBlend;
-	int tilingNumber;
+	//int tilingNumber;
+	int repeatU;
+	int repeatV;
+	glm::vec2 waveSpeed;
+	float waveAmplitude;
+	float waveFrequency;
 
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
 	~MyGLCanvas();
@@ -70,6 +76,8 @@ private:
 	glm::mat4 perspectiveMatrix;
 
 	bool firstTime;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 };
 
 #endif // !MYGLCANVAS_H

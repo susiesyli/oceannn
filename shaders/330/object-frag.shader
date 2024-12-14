@@ -9,59 +9,39 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform float textureBlend;
 uniform bool useDiffuse;
+uniform float repeatU;
+uniform float repeatV;
+uniform float time;
+uniform vec2 waveSpeed;
+uniform float waveAmplitude;
+uniform float waveFrequency;
 
 out vec4 outputColor;
 
-vec2 textureLocation(vec3 point) {
-    // Calculate view direction in world space
+vec2 planarTextureCoords(vec3 point, float time) {
+    float u = point.x * repeatU + time * waveSpeed.x; 
+    float v = point.z * repeatV + time * waveSpeed.y;
 
-    vec3 p = normalize(point);
-    vec3 viewDir = normalize(viewPos - point);
-    
-    // Calculate reflection direction in world space
-    vec3 reflectDir = reflect(-viewDir, normalize(fragNormal));
-    
-    // Convert reflection vector to spherical coordinates
-    // Use atan2 for more robust angle calculation
-    float phi = atan(-reflectDir.x, reflectDir.z);
-    float theta = acos(reflectDir.y);
-    float u = (phi + 3.14159)/ (2.0 * 3.14159) -0.25f;
-    float v = theta / (3.14159);
+    u += waveAmplitude * sin(2.0 * 3.14159 * waveFrequency * v + time);
+    v += waveAmplitude * cos(2.0 * 3.14159 * waveFrequency * u + time);
 
+    u = mod(u, 1.0);
+    if (u < 0.0) u += 1.0;
+    v = mod(v, 1.0);
+    if (v < 0.0) v += 1.0;
 
-    // Map to texture coordinates
-    // Adjust to ensure consistent mapping
-    
-    // float theta = atan(-reflectDir.z, reflectDir.x) / 2;
-    // float phi = -asin(reflectDir.y);
-    // float x = (theta + 3.14159) / (3.14159 * 2);
-    // float y = (phi / 3.14159) + 0.5f;
-    
-    vec2 coord = vec2(
-        u,
-        v
-    );
-    
-
-
-    return coord;
+    return vec2(u, v);
 }
 
-void main()
-{
-    // Environment map color
-    vec2 envCoord = textureLocation(fragPosition);
-    vec4 environColor = texture(environMap, envCoord);
-    
-    // Object texture color
-    vec3 dir = normalize(fragPosition);
-    vec2 objTexCoord = vec2(atan(dir.z, dir.x) / (2.0 * 3.14159), -asin(dir.y) / 3.14159 + 0.5);
-    vec4 objectColor = texture(objectTexture, objTexCoord);
-    
-    // Blend textures based on textureBlend
+void main() {
+    vec2 texCoord = planarTextureCoords(fragPosition, time);
+
+    vec4 environColor = texture(environMap, texCoord);
+
+    vec4 objectColor = texture(objectTexture, texCoord);
+
     vec4 finalTexture = mix(environColor, objectColor, textureBlend);
-    
-    // Diffuse shading
+
     vec4 diffuseColor = vec4(1.0);
     if (useDiffuse) {
         vec3 norm = normalize(fragNormal);
@@ -69,7 +49,6 @@ void main()
         float diff = max(dot(norm, lightDir), 0.0);
         diffuseColor = vec4(diff * vec3(1.0), 1.0);
     }
-    
-    // Final color combining texture and diffuse shading
+
     outputColor = finalTexture * diffuseColor;
 }

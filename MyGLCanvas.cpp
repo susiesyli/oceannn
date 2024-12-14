@@ -7,16 +7,21 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 
 	eyePosition = glm::vec3(0.0f, 0.0f, 3.0f);
 	lookatPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	rotVec = glm::vec3(0.0f, 0.0f, 0.0f);
+	rotVec = glm::vec3(177.0f, 0.0f, 0.0f);
 	lightPos = eyePosition;
 
 	viewAngle = 60;
 	clipNear = 0.01f;
-	clipFar = 20.0f;
+	clipFar = 10000.0f;
 	// scaleFactor = 1.0f;
 	lightAngle = 0.0f;
 	textureBlend = 1.0f;
-	tilingNumber = 10;
+	repeatU = 5;
+	repeatV = 5;
+
+	waveSpeed = glm::vec2(0.1f, 0.05f);
+	waveAmplitude = 0.02f;
+	waveFrequency = 1.5f;
 
 	useDiffuse = false;
 
@@ -24,7 +29,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 
 	myTextureManager = new TextureManager();
 	myShaderManager = new ShaderManager();
-	myObjectPLY = new ply("./data/cube.ply");
+	myObjectPLY = new ply("./data/sphere.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
 }
 
@@ -87,13 +92,15 @@ void MyGLCanvas::drawScene() {
 
 	glm::mat4 modelMatrix = glm::mat4(1.0);
 
-	//modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -1.0f, 0.0f));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -1.0f, 0.0f));
 
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	//modelMatrix = glm::scale(modelMatrix, glm::vec3(100.0f, 1.0f, 100.0f));
+	
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.1f, 10000.0f));
 
+	//printf("in draw scene!");
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -110,6 +117,16 @@ void MyGLCanvas::drawScene() {
 	//TODO: add variable binding
 	GLuint objectShaderProgram = myShaderManager->getShaderProgram("objectShaders")->programID;
 
+	// Get the current time
+	auto currentTime = std::chrono::high_resolution_clock::now();
+
+	// Calculate the elapsed time since startTime
+	std::chrono::duration<float> elapsedTime = currentTime - startTime;
+	float totalTime = elapsedTime.count(); // Time in seconds
+
+	// Now you can use totalTime for wave simulation or other purposes
+	//std::cout << "Total time since start: " << totalTime << " seconds." << std::endl;
+
 	// Get uniform locations
 	GLint modelLoc = glGetUniformLocation(objectShaderProgram, "model");
 	GLint viewLoc = glGetUniformLocation(objectShaderProgram, "view");
@@ -118,7 +135,14 @@ void MyGLCanvas::drawScene() {
 	GLint viewPosLoc = glGetUniformLocation(objectShaderProgram, "viewPos");
 	GLint textureBlendLoc = glGetUniformLocation(objectShaderProgram, "textureBlend");
 	GLint useDiffuseLoc = glGetUniformLocation(objectShaderProgram, "useDiffuse");
-	GLint tilingNumberLoc = glGetUniformLocation(objectShaderProgram, "tilingFactor");
+	GLint repeatULoc = glGetUniformLocation(objectShaderProgram, "repeatU");
+	GLint repeatVLoc = glGetUniformLocation(objectShaderProgram, "repeatV");
+	GLint timeLoc = glGetUniformLocation(objectShaderProgram, "time");
+	GLint waveSpeedLoc = glGetUniformLocation(objectShaderProgram, "waveSpeed");
+	GLint waveAmplitudeLoc = glGetUniformLocation(objectShaderProgram, "waveAmplitude");
+	GLint waveFrequencyLoc = glGetUniformLocation(objectShaderProgram, "waveFrequency");
+
+
 
 	// Pass matrix uniforms
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -132,7 +156,12 @@ void MyGLCanvas::drawScene() {
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(transformedEye));
 	glUniform1f(textureBlendLoc, textureBlend);
 	glUniform1i(useDiffuseLoc, useDiffuse);
-	glUniform1f(tilingNumberLoc, tilingNumber);
+	glUniform1f(repeatULoc, repeatU);
+	glUniform1f(repeatVLoc, repeatV);
+	glUniform1f(timeLoc, totalTime);
+	glUniform2f(waveSpeedLoc, waveSpeed[0], waveSpeed[1]);
+	glUniform1f(waveAmplitudeLoc, waveAmplitude);
+	glUniform1f(waveFrequencyLoc, waveFrequency);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
