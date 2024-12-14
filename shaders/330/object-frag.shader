@@ -29,6 +29,28 @@ ufloat hashRandom(ufloat x) {
 
 }
 
+ufloat perlinNoise(vec3 point) {
+    int x0 = sign(point[0]) * floor(abs(point[0]));
+    int x1 = x0 + 1;
+    int y0 = sign(point[1]) * floor(abs(point[1]));
+    int y1 = y0 + 1;
+    int z0 = sign(point[1]) * floor(abs(point[1]));
+    int z1 = z0 + 1;
+
+    float px0 = point[0] - float(x0);
+    float px1 = px0 - 1.0f;
+    float py0 = point[1] - float(y0);
+    float py1 = py0 - 1.0f;
+    float pz0 = point[2] - float(z0);
+    float pz1 = pz0 - 1.0f;
+
+    int gIndex = int((x0 + (hashRandom[z0 & 255]) & 255) & 255);
+
+    return 1.0f;
+
+
+}
+
 vec2 planarTextureCoords(vec3 point, float time) {
     float u = point.x * repeatU + time * waveSpeed.x; 
     float v = point.z * repeatV + time * waveSpeed.y;
