@@ -30,14 +30,10 @@ MyAppWindow* win;
 
 class MyAppWindow : public Fl_Window {
 public:
-	Fl_Slider* rotXSlider;
 	Fl_Slider* rotYSlider;
-	Fl_Slider* rotZSlider;
 	Fl_Slider* lightSlider;
-	// Fl_Slider* scaleSlider;
 	Fl_Button* openFileButton;
 	Fl_Button* reloadButton;
-	// Fl_Button* useNormalMapButton;
 
 	MyGLCanvas* canvas;
 
@@ -145,78 +141,6 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	envpack->spacing(0);
 	envpack->begin();
 
-	Fl_Box* texTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Sphere Map");
-	openFileButton = new Fl_Button(0, 0, pack->w() - 20, 20, "Load PPM");
-	openFileButton->callback(loadEnvFileCB, (void*)this);
-	envpack->end();
-
-
-	// Fl_Pack* objectpack = new Fl_Pack(w() - 100, 30, 100, h(), "Object Model");
-	// objectpack->box(FL_DOWN_FRAME);
-	// objectpack->labelfont(1);
-	// objectpack->type(Fl_Pack::VERTICAL);
-	// objectpack->spacing(0);
-	// objectpack->begin();
-
-	// //slider for controlling rotation
-	// rotXSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	// rotXSlider->align(FL_ALIGN_TOP);
-	// rotXSlider->type(FL_HOR_SLIDER);
-	// rotXSlider->bounds(-359, 359);
-	// rotXSlider->step(1);
-	// rotXSlider->value(canvas->rotVec.x);
-	// rotXSlider->callback(floatCB, (void*)(&(canvas->rotVec.x)));
-
-	// Fl_Box* rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
-	// rotYSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	// rotYSlider->align(FL_ALIGN_TOP);
-	// rotYSlider->type(FL_HOR_SLIDER);
-	// rotYSlider->bounds(-359, 359);
-	// rotYSlider->step(1);
-	// rotYSlider->value(canvas->rotVec.y);
-	// rotYSlider->callback(floatCB, (void*)(&(canvas->rotVec.y)));
-
-	// Fl_Box* rotZTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateZ");
-	// rotZSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	// rotZSlider->align(FL_ALIGN_TOP);
-	// rotZSlider->type(FL_HOR_SLIDER);
-	// rotZSlider->bounds(-359, 359);
-	// rotZSlider->step(1);
-	// rotZSlider->value(canvas->rotVec.z);
-	// rotZSlider->callback(floatCB, (void*)(&(canvas->rotVec.z)));
-
-	// Fl_Box* scaleTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Scale");
-	// scaleSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	// scaleSlider->align(FL_ALIGN_TOP);
-	// scaleSlider->type(FL_HOR_SLIDER);
-	// scaleSlider->bounds(0.1, 5);
-	// scaleSlider->step(0.1);
-	// scaleSlider->value(canvas->scaleFactor);
-	// scaleSlider->callback(floatCB, (void*)(&(canvas->scaleFactor)));
-
-	// objectpack->end();
-
-	Fl_Pack* worldpack = new Fl_Pack(w() - 100, 130, 100, h(), "World Model");
-	worldpack->box(FL_DOWN_FRAME);
-	worldpack->labelfont(1);
-	worldpack->type(Fl_Pack::VERTICAL);
-	worldpack->spacing(0);
-	worldpack->begin();
-
-
-	//slider for controlling rotation
-    Fl_Box* rotXTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateX");
-	rotXSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	rotXSlider->align(FL_ALIGN_TOP);
-	rotXSlider->type(FL_HOR_SLIDER);
-	rotXSlider->bounds(-359, 359);
-	rotXSlider->step(1);
-	rotXSlider->value(203);
-	rotXSlider->deactivate();
-	//rotXSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.x)));
-
- 	// rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
-
 	Fl_Box* rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
 	rotYSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	rotYSlider->align(FL_ALIGN_TOP);
@@ -226,56 +150,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	rotYSlider->value(canvas->rotWorldVec.y);
 	rotYSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.y)));
 
- 	// Fl_Box* ro/tZTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
-
-	Fl_Box*  rotZTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateZ");
-	rotZSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	rotZSlider->align(FL_ALIGN_TOP);
-	rotZSlider->type(FL_HOR_SLIDER);
-	rotZSlider->bounds(-359, 359);
-	rotZSlider->step(1);
-	rotZSlider->value(canvas->rotWorldVec.z);
-	rotZSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.z)));
-
-	worldpack->end();
 	pack->end();
-
-
-	Fl_Pack* packCol2 = new Fl_Pack(w() - 155, 30, 150, h(), "");
-	packCol2->box(FL_DOWN_FRAME);
-	packCol2->type(Fl_Pack::VERTICAL);
-	packCol2->spacing(30);
-	packCol2->begin();
-
-	Fl_Pack* packObj = new Fl_Pack(w() - 100, 30, 100, h(), "Object");
-	packObj->box(FL_DOWN_FRAME);
-	packObj->labelfont(1);
-	packObj->type(Fl_Pack::VERTICAL);
-	packObj->spacing(0);
-	packObj->begin();
-
-	Fl_Box* plyTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Object File");
-	openFileButton = new Fl_Button(0, 0, pack->w() - 20, 20, "Load PLY");
-	openFileButton->callback(loadFileCB, (void*)this);
-
-	Fl_Box* textureTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Texture File");
-	openFileButton = new Fl_Button(0, 0, pack->w() - 20, 20, "Load Texture");
-	openFileButton->callback(loadTextureFileCB, (void*)this);
-
-
-	// Fl_Box* lightTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Texture Blend");
-	// lightSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	// lightSlider->align(FL_ALIGN_TOP);
-	// lightSlider->type(FL_HOR_SLIDER);
-	// lightSlider->bounds(0, 1);
-	// lightSlider->step(0.01);
-	// lightSlider->value(canvas->textureBlend);
-	// lightSlider->callback(floatCB, (void*)(&(canvas->textureBlend)));
-
-	// useNormalMapButton = new Fl_Check_Button(0, 100, pack->w() - 20, 20, "Diffuse Shading");
-	// useNormalMapButton->callback(intCB, (void*)(&(canvas->useDiffuse)));
-	// useNormalMapButton->value(canvas->useDiffuse);
-	packObj->end();
 
 	Fl_Pack* packShaders = new Fl_Pack(w() - 100, 30, 100, h(), "Shader");
 	packShaders->box(FL_DOWN_FRAME);
@@ -288,7 +163,6 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	reloadButton->callback(reloadCB, (void*)this);
 
 	packShaders->end();
-	packCol2->end();
 
 	end();
 }

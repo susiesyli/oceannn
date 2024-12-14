@@ -14,7 +14,6 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	viewAngle = 60;
 	clipNear = 0.01f;
 	clipFar = 10000.0f;
-	// scaleFactor = 1.0f;
 	lightAngle = 0.0f;
 	textureBlend = 1.0f;
 	repeatU = 5;
@@ -101,7 +100,6 @@ void MyGLCanvas::drawScene() {
 	
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.1f, 10000.0f));
 
-	//printf("in draw scene!");
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
