@@ -6,9 +6,9 @@ in vec3 fragNormal;
 uniform sampler2D environMap;
 uniform sampler2D objectTexture;
 uniform vec3 lightPos;
+uniform float lightIntensity;
 uniform vec3 viewPos;
 uniform float textureBlend;
-uniform bool useDiffuse;
 uniform float repeatU;
 uniform float repeatV;
 uniform float time;
@@ -43,12 +43,12 @@ void main() {
     vec4 finalTexture = mix(environColor, objectColor, textureBlend);
 
     vec4 diffuseColor = vec4(1.0);
-    if (useDiffuse) {
-        vec3 norm = normalize(fragNormal);
-        vec3 lightDir = normalize(lightPos - fragPosition);
-        float diff = max(dot(norm, lightDir), 0.0);
-        diffuseColor = vec4(diff * vec3(1.0), 1.0);
-    }
+    
+    vec3 norm = normalize(fragNormal);
+    vec3 lightDir = normalize(lightPos - fragPosition);
+    float diff = max(dot(norm, lightDir), 0.0);
 
-    outputColor = finalTexture * diffuseColor;
+    diffuseColor = vec4(diff * vec3(1.0), 1.0);
+
+    outputColor = finalTexture * diffuseColor + lightIntensity;
 }
