@@ -7,7 +7,8 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 
 	eyePosition = glm::vec3(0.0f, 0.0f, 3.0f);
 	lookatPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	rotVec = glm::vec3(177.0f, 0.0f, 0.0f);
+	rotVec = glm::vec3(0.0f, 0.0f, 0.0f);
+	rotWorldVec = glm::vec3(0.0f, 0.0f, 0.0f);
 	lightPos = eyePosition;
 
 	viewAngle = 60;
@@ -92,7 +93,7 @@ void MyGLCanvas::drawScene() {
 
 	glm::mat4 modelMatrix = glm::mat4(1.0);
 
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -1.0f, 0.0f));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -0.1f, 0.0f));
 
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -117,15 +118,10 @@ void MyGLCanvas::drawScene() {
 	//TODO: add variable binding
 	GLuint objectShaderProgram = myShaderManager->getShaderProgram("objectShaders")->programID;
 
-	// Get the current time
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
-	// Calculate the elapsed time since startTime
 	std::chrono::duration<float> elapsedTime = currentTime - startTime;
-	float totalTime = elapsedTime.count(); // Time in seconds
-
-	// Now you can use totalTime for wave simulation or other purposes
-	//std::cout << "Total time since start: " << totalTime << " seconds." << std::endl;
+	float totalTime = elapsedTime.count();
 
 	// Get uniform locations
 	GLint modelLoc = glGetUniformLocation(objectShaderProgram, "model");
@@ -141,8 +137,6 @@ void MyGLCanvas::drawScene() {
 	GLint waveSpeedLoc = glGetUniformLocation(objectShaderProgram, "waveSpeed");
 	GLint waveAmplitudeLoc = glGetUniformLocation(objectShaderProgram, "waveAmplitude");
 	GLint waveFrequencyLoc = glGetUniformLocation(objectShaderProgram, "waveFrequency");
-
-
 
 	// Pass matrix uniforms
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));

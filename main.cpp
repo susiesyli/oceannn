@@ -211,8 +211,9 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	rotXSlider->type(FL_HOR_SLIDER);
 	rotXSlider->bounds(-359, 359);
 	rotXSlider->step(1);
-	rotXSlider->value(canvas->rotWorldVec.x);
-	rotXSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.x)));
+	rotXSlider->value(203);
+	rotXSlider->deactivate();
+	//rotXSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.x)));
 
  	// rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
 
