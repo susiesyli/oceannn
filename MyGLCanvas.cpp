@@ -15,6 +15,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	clipNear = 0.01f;
 	clipFar = 10000.0f;
 	lightAngle = 0.0f;
+    lightElevation = 0.0f;
 	lightIntensity = 0.0f;
 	textureBlend = 1.0f;
 	repeatU = 5;
@@ -147,7 +148,11 @@ void MyGLCanvas::drawScene() {
 
 	// add pass light angle 
 	glm::vec4 lightPos(0.0f, 0.0f, 1.0f, 0.0f);
+    // add light rotation angle 
 	lightPos = glm::rotate(glm::mat4(1.0), TO_RADIANS(lightAngle), glm::vec3(0.0, 1.0, 0.0)) * lightPos;
+    // add light elevation angle 
+    lightPos = glm::rotate(glm::mat4(1.0), TO_RADIANS(lightElevation), glm::vec3(-1.0, 0.0, 0.0)) * lightPos;
+
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
 
 
@@ -161,7 +166,7 @@ void MyGLCanvas::drawScene() {
 	glUniform2f(waveSpeedLoc, waveSpeed[0], waveSpeed[1]);
 	glUniform1f(waveAmplitudeLoc, waveAmplitude);
 	glUniform1f(waveFrequencyLoc, waveFrequency);
-	glUniform1f(waveFrequencyLoc, lightIntensity);
+	glUniform1f(lightIntensityLoc, lightIntensity);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");

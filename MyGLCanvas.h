@@ -37,6 +37,8 @@ public:
 	glm::vec3 rotWorldVec;
 
 	float lightAngle; //used to control where the light is coming from
+    // add: light elevation angle 
+    float lightElevation; 
 	float lightIntensity;
 	int viewAngle;
 	float clipNear;

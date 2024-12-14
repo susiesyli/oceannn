@@ -32,6 +32,7 @@ class MyAppWindow : public Fl_Window {
 public:
 	Fl_Slider* rotYSlider;
 	Fl_Slider* lightAngleSlider;
+    Fl_Slider* lightElevationSlider;
 	Fl_Slider* lightIntensitySlider;
 	Fl_Button* openFileButton;
 	Fl_Button* reloadButton;
@@ -164,17 +165,26 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	lightAngleSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	lightAngleSlider->align(FL_ALIGN_TOP);
 	lightAngleSlider->type(FL_HOR_SLIDER);
-	lightAngleSlider->bounds(-180, 180);
+	lightAngleSlider->bounds(-90, 90);
 	lightAngleSlider->step(1);
 	lightAngleSlider->value(canvas->lightAngle);
 	lightAngleSlider->callback(floatCB, (void*)(&(canvas->lightAngle)));
+
+    Fl_Box* lightElevationTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Elevation");
+	lightElevationSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
+	lightElevationSlider->align(FL_ALIGN_TOP);
+	lightElevationSlider->type(FL_HOR_SLIDER);
+	lightElevationSlider->bounds(-5, 45);
+	lightElevationSlider->step(1);
+	lightElevationSlider->value(canvas->lightAngle);
+	lightElevationSlider->callback(floatCB, (void*)(&(canvas->lightElevation)));
 
 	Fl_Box* lightIntensityTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Intensity");
 	lightIntensitySlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
 	lightIntensitySlider->align(FL_ALIGN_TOP);
 	lightIntensitySlider->type(FL_HOR_SLIDER);
-	lightIntensitySlider->bounds(-180, 180);
-	lightIntensitySlider->step(1);
+	lightIntensitySlider->bounds(0, 1);
+	lightIntensitySlider->step(0.01);
 	lightIntensitySlider->value(canvas->lightAngle);
 	lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));
 
