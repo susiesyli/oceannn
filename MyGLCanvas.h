@@ -36,14 +36,13 @@ public:
 	glm::vec3 lightPos;
 	glm::vec3 rotWorldVec;
 
-	int useDiffuse;
 	float lightAngle; //used to control where the light is coming from
+	float lightIntensity;
 	int viewAngle;
 	float clipNear;
 	float clipFar;
 	float scaleFactor;
 	float textureBlend;
-	//int tilingNumber;
 	int repeatU;
 	int repeatV;
 	glm::vec2 waveSpeed;

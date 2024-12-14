@@ -31,7 +31,8 @@ MyAppWindow* win;
 class MyAppWindow : public Fl_Window {
 public:
 	Fl_Slider* rotYSlider;
-	Fl_Slider* lightSlider;
+	Fl_Slider* lightAngleSlider;
+	Fl_Slider* lightIntensitySlider;
 	Fl_Button* openFileButton;
 	Fl_Button* reloadButton;
 
@@ -158,6 +159,24 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 	packShaders->type(Fl_Pack::VERTICAL);
 	packShaders->spacing(0);
 	packShaders->begin();
+
+	Fl_Box* lightAngleTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Angle");
+	lightAngleSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
+	lightAngleSlider->align(FL_ALIGN_TOP);
+	lightAngleSlider->type(FL_HOR_SLIDER);
+	lightAngleSlider->bounds(-180, 180);
+	lightAngleSlider->step(1);
+	lightAngleSlider->value(canvas->lightAngle);
+	lightAngleSlider->callback(floatCB, (void*)(&(canvas->lightAngle)));
+
+	Fl_Box* lightIntensityTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Intensity");
+	lightIntensitySlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
+	lightIntensitySlider->align(FL_ALIGN_TOP);
+	lightIntensitySlider->type(FL_HOR_SLIDER);
+	lightIntensitySlider->bounds(-180, 180);
+	lightIntensitySlider->step(1);
+	lightIntensitySlider->value(canvas->lightAngle);
+	lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));
 
 	reloadButton = new Fl_Button(0, 0, pack->w() - 20, 20, "Reload");
 	reloadButton->callback(reloadCB, (void*)this);

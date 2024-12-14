@@ -15,6 +15,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	clipNear = 0.01f;
 	clipFar = 10000.0f;
 	lightAngle = 0.0f;
+	lightIntensity = 0.0f;
 	textureBlend = 1.0f;
 	repeatU = 5;
 	repeatV = 5;
@@ -23,13 +24,13 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	waveAmplitude = 0.02f;
 	waveFrequency = 1.5f;
 
-	useDiffuse = false;
+	//useDiffuse = true;
 
 	firstTime = true;
 
 	myTextureManager = new TextureManager();
 	myShaderManager = new ShaderManager();
-	myObjectPLY = new ply("./data/sphere.ply");
+	myObjectPLY = new ply("./data/cube.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
 }
 
@@ -41,7 +42,7 @@ MyGLCanvas::~MyGLCanvas() {
 }
 
 void MyGLCanvas::initShaders() {
-	myTextureManager->loadTexture("environMap", "./data/sphere-map-market.ppm");
+	myTextureManager->loadTexture("environMap", "./data/lol.ppm");
 	myTextureManager->loadTexture("objectTexture", "./data/ocean_.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
@@ -97,7 +98,7 @@ void MyGLCanvas::drawScene() {
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	
+
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.1f, 10000.0f));
 
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
@@ -126,9 +127,10 @@ void MyGLCanvas::drawScene() {
 	GLint viewLoc = glGetUniformLocation(objectShaderProgram, "view");
 	GLint projLoc = glGetUniformLocation(objectShaderProgram, "projection");
 	GLint lightPosLoc = glGetUniformLocation(objectShaderProgram, "lightPos");
+	GLint lightIntensityLoc = glGetUniformLocation(objectShaderProgram, "lightIntensity");
 	GLint viewPosLoc = glGetUniformLocation(objectShaderProgram, "viewPos");
 	GLint textureBlendLoc = glGetUniformLocation(objectShaderProgram, "textureBlend");
-	GLint useDiffuseLoc = glGetUniformLocation(objectShaderProgram, "useDiffuse");
+	//GLint useDiffuseLoc = glGetUniformLocation(objectShaderProgram, "useDiffuse");
 	GLint repeatULoc = glGetUniformLocation(objectShaderProgram, "repeatU");
 	GLint repeatVLoc = glGetUniformLocation(objectShaderProgram, "repeatV");
 	GLint timeLoc = glGetUniformLocation(objectShaderProgram, "time");
@@ -142,18 +144,24 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 
 	// Pass other uniforms
+
+	// add pass light angle 
+	glm::vec4 lightPos(0.0f, 0.0f, 1.0f, 0.0f);
+	lightPos = glm::rotate(glm::mat4(1.0), TO_RADIANS(lightAngle), glm::vec3(0.0, 1.0, 0.0)) * lightPos;
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
+
+
 	glm::vec4 rotatedEye = glm::inverse(viewMatrix) * glm::vec4(eyePosition, 1.0f);
 	glm::vec3 transformedEye = glm::vec3(rotatedEye);
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(transformedEye));
 	glUniform1f(textureBlendLoc, textureBlend);
-	glUniform1i(useDiffuseLoc, useDiffuse);
 	glUniform1f(repeatULoc, repeatU);
 	glUniform1f(repeatVLoc, repeatV);
 	glUniform1f(timeLoc, totalTime);
 	glUniform2f(waveSpeedLoc, waveSpeed[0], waveSpeed[1]);
 	glUniform1f(waveAmplitudeLoc, waveAmplitude);
 	glUniform1f(waveFrequencyLoc, waveFrequency);
+	glUniform1f(waveFrequencyLoc, lightIntensity);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
