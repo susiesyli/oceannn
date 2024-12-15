@@ -34,6 +34,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myObjectPLY = new ply("./data/cube.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
 	mySunPLY = new ply("./data/sphere.ply");
+	myParticlePLY = new ply("./data/sphere.ply");
 }
 
 MyGLCanvas::~MyGLCanvas() {
@@ -53,6 +54,7 @@ void MyGLCanvas::initShaders() {
         "./data/skybox/front.ppm",
         "./data/skybox/back.ppm"
     };
+
     myTextureManager->loadCubeMap("environMap", skyboxFaces); // load environment map 
 	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm"); // load object (ocean) map 
 
@@ -67,6 +69,12 @@ void MyGLCanvas::initShaders() {
 	myShaderManager->addShaderProgram("sunShaders", "shaders/330/sun-vert.shader", "shaders/330/sun-frag.shader");
 	mySunPLY->buildArrays();
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+
+	myShaderManager->addShaderProgram("particleShaders", "shaders/330/particle-vert.shader", "shaders/330/particle-frag.shader");
+	myParticlePLY->buildArrays();
+	myParticlePLY->bindVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
+
 }
 
 void MyGLCanvas::draw() {
@@ -218,7 +226,6 @@ void MyGLCanvas::drawScene() {
     glDepthFunc(GL_LESS);   
 
 
-
 	// draw sun sphere
 	glUseProgram(myShaderManager->getShaderProgram("sunShaders")->programID);
 	// Get shader program
@@ -236,6 +243,23 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+	glUseProgram(myShaderManager->getShaderProgram("particleShaders")->programID);
+	GLuint particleShaderProgram = myShaderManager->getShaderProgram("particleShaders")->programID;
+
+	// Variable binding for environment shader
+	GLint particleModelLoc = glGetUniformLocation(particleShaderProgram, "particleModel");
+	GLint particleViewLoc = glGetUniformLocation(particleShaderProgram, "particleView");
+	GLint particleProjLoc = glGetUniformLocation(particleShaderProgram, "particleProjection");
+	GLint particleLightPosLoc = glGetUniformLocation(particleShaderProgram, "lightPos");
+
+	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
+	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+	glUniform3fv(particleLightPosLoc, 1, glm::value_ptr(lightPos));
+
+	myParticlePLY->renderVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
+
 }
 
 
