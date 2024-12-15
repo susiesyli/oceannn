@@ -57,6 +57,7 @@ void MyGLCanvas::initShaders() {
 
     myTextureManager->loadCubeMap("environMap", skyboxFaces); // load environment map 
 	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm"); // load object (ocean) map 
+	myTextureManager->loadTexture("fogTexture", "./data/top.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -112,7 +113,7 @@ void MyGLCanvas::drawScene() {
 
 	glm::mat4 modelMatrix = glm::mat4(1.0);
 
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -0.1f, 2500.0f));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -0.1f, 0.0f));
 
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -137,6 +138,9 @@ void MyGLCanvas::drawScene() {
 	// glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("fogTexture"));
 
 	//first draw the object sphere
 	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
@@ -195,6 +199,7 @@ void MyGLCanvas::drawScene() {
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
 	GLint objectTextureLoc = glGetUniformLocation(objectShaderProgram, "objectTexture");
+	
 	glUniform1i(environMapLoc, 0);  // GL_TEXTURE0
 	glUniform1i(objectTextureLoc, 1);  // GL_TEXTURE1
     
@@ -221,7 +226,7 @@ void MyGLCanvas::drawScene() {
 	// glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
     glDepthMask(GL_FALSE); // Disable depth writes, makes sure the sun shows up 
     glDepthFunc(GL_LEQUAL); 
-	myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
+	//myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
     glDepthMask(GL_TRUE);  // Re-enable depth writes
     glDepthFunc(GL_LESS);   
 
@@ -242,8 +247,9 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+	//mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 
+	// particles!
 	glUseProgram(myShaderManager->getShaderProgram("particleShaders")->programID);
 	GLuint particleShaderProgram = myShaderManager->getShaderProgram("particleShaders")->programID;
 
@@ -252,11 +258,17 @@ void MyGLCanvas::drawScene() {
 	GLint particleViewLoc = glGetUniformLocation(particleShaderProgram, "particleView");
 	GLint particleProjLoc = glGetUniformLocation(particleShaderProgram, "particleProjection");
 	GLint particleLightPosLoc = glGetUniformLocation(particleShaderProgram, "lightPos");
+	GLint particleTextureLoc = glGetUniformLocation(particleShaderProgram, "particleTexture");
 
-	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
-	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+	glm::mat4 particleModelMatrix = glm::mat4(1.0f);
+	particleModelMatrix = glm::translate(particleModelMatrix, glm::vec3(lightPos));
+	particleModelMatrix = glm::scale(particleModelMatrix, glm::vec3(0.75f, 0.75f, 0.75f));
+
+	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(particleModelMatrix));
+	glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	glUniform3fv(particleLightPosLoc, 1, glm::value_ptr(lightPos));
+	glUniform1i(particleTextureLoc, 2);
 
 	myParticlePLY->renderVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
 

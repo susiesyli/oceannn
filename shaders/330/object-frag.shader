@@ -62,6 +62,8 @@ vec2 planarTextureCoords(vec3 point, float time) {
 void main() {
     vec2 texCoord = planarTextureCoords(fragPosition, time);
 
+    vec3 sampledNormal = normalize(texture(objectTexture, texCoord).rgb * 2.0 - 1.0);
+
     vec4 environColor = texture(environMap, texCoord);
     vec4 objectColor = texture(objectTexture, texCoord);
 
@@ -76,9 +78,9 @@ void main() {
     vec3 diffuseLight = lightIntensity * diff * vec3(1.0, 1.0, 1.0);
 
     // Beam effect
-    vec3 horizontalLightPos = vec3(lightPos.x, 0.0, lightPos.z);
+    vec3 horizontalLightPos = vec3(lightPos.x, 0.0f, -lightPos.z);
     vec3 horizontalViewPos = vec3(viewPos.x, 0.0, viewPos.z);
-    vec3 horizontalFragPos = vec3(fragPosition.x, 0.0, fragPosition.z);
+    vec3 horizontalFragPos = vec3(fragPosition.x, 0.0, -fragPosition.z);
 
     vec3 beamDir = normalize(horizontalViewPos - horizontalLightPos);
     vec3 fragToBeamStart = horizontalFragPos - horizontalLightPos;
@@ -100,7 +102,17 @@ void main() {
 
     vec3 beamLight = beamIntensity * vec3(1.0, 1.0, 1.0);
 
+    vec3 oceanColor = vec3(0.0, 0.5, 0.8);
+
     // Combine lighting effects
-    vec4 diffuseColor = vec4(diffuseLight + beamLight, 1.0);
-    outputColor = finalTexture * diffuseColor;
+    vec3 lightingEffect = diffuseLight + beamLight;
+    vec4 diffuseColor = vec4(lightingEffect, 1.0);
+
+    vec3 finalColor = (finalTexture.rgb * lightingEffect);
+    finalColor.r *= 0.25;
+    finalColor.g *= 1.2;
+    finalColor.b *= 1.5;
+
+    outputColor = vec4(finalColor, 1.0);
 }
+
