@@ -21,11 +21,3 @@ void main()
     // Compute final vertex position
     gl_Position = particleProjection * particleView * particleModel * vec4(myPosition, 1);
 }
-void main() {
-    // Existing transformations
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
-
-    // Calculate fog factor (linear distance from the camera)
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    fogFactor = length(worldPos.xyz - cameraPosition); // Pass to fragment shader
-}
