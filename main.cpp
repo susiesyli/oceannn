@@ -30,11 +30,20 @@ MyAppWindow* win;
 
 class MyAppWindow : public Fl_Window {
 public:
+	// camera sliders
 	Fl_Slider* rotYSlider;
+
+	// light sliders
 	Fl_Slider* lightAngleSlider;
-    Fl_Slider* lightElevationSlider;
 	Fl_Slider* lightIntensitySlider;
-	Fl_Button* openFileButton;
+
+	// wave sliders
+	Fl_Slider* waveAmplitudeSlider;
+	Fl_Slider* waveFrequencySlider;
+	Fl_Slider* waveSpeedXSlider;
+	Fl_Slider* waveSpeedYSlider;
+	
+	// shader button
 	Fl_Button* reloadButton;
 
 	MyGLCanvas* canvas;
@@ -123,77 +132,118 @@ private:
 	}
 };
 
-
 MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
-	begin();
-	// OpenGL window
+    begin();
+    // OpenGL window
+    canvas = new MyGLCanvas(10, 10, w() - 320, h() - 20);
 
-	canvas = new MyGLCanvas(10, 10, w() - 320, h() - 20);
+    // Main pack container (left column)
+    Fl_Pack* packLeft = new Fl_Pack(w() - 310, 30, 150, h() - 40, "");
+    packLeft->box(FL_DOWN_FRAME);
+    packLeft->type(Fl_Pack::VERTICAL);
+    packLeft->spacing(20);
+    packLeft->begin();
 
-	Fl_Pack* pack = new Fl_Pack(w() - 310, 30, 150, h(), "");
-	pack->box(FL_DOWN_FRAME);
-	pack->type(Fl_Pack::VERTICAL);
-	pack->spacing(30);
-	pack->begin();
+    // Camera Controls Pack
+    Fl_Pack* cameraPack = new Fl_Pack(0, 0, packLeft->w(), 120, "Camera Controls");
+    cameraPack->box(FL_DOWN_FRAME);
+    cameraPack->labelfont(FL_BOLD);
+    cameraPack->type(Fl_Pack::VERTICAL);
+    cameraPack->spacing(10);
+    cameraPack->begin();
 
-	Fl_Pack* envpack = new Fl_Pack(w() - 100, 30, 100, h(), "Environment");
-	envpack->box(FL_DOWN_FRAME);
-	envpack->labelfont(1);
-	envpack->type(Fl_Pack::VERTICAL);
-	envpack->spacing(0);
-	envpack->begin();
+    Fl_Box* rotYTextbox = new Fl_Box(0, 0, cameraPack->w(), 20, "Rotate Y");
+    rotYSlider = new Fl_Value_Slider(0, 0, cameraPack->w(), 20, "");
+    rotYSlider->align(FL_ALIGN_TOP);
+    rotYSlider->type(FL_HOR_SLIDER);
+    rotYSlider->bounds(-359, 359);
+    rotYSlider->step(1);
+    rotYSlider->value(canvas->rotWorldVec.y);
+    rotYSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.y)));
 
-	Fl_Box* rotYTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "RotateY");
-	rotYSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	rotYSlider->align(FL_ALIGN_TOP);
-	rotYSlider->type(FL_HOR_SLIDER);
-	rotYSlider->bounds(-359, 359);
-	rotYSlider->step(1);
-	rotYSlider->value(canvas->rotWorldVec.y);
-	rotYSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.y)));
+    cameraPack->end();
 
-	pack->end();
+    // Light Controls Pack
+    Fl_Pack* lightPack = new Fl_Pack(0, 0, packLeft->w(), 180, "Light Controls");
+    lightPack->box(FL_DOWN_FRAME);
+    lightPack->labelfont(FL_BOLD);
+    lightPack->type(Fl_Pack::VERTICAL);
+    lightPack->spacing(10);
+    lightPack->begin();
 
-	Fl_Pack* packShaders = new Fl_Pack(w() - 100, 30, 100, h(), "Shader");
-	packShaders->box(FL_DOWN_FRAME);
-	packShaders->labelfont(1);
-	packShaders->type(Fl_Pack::VERTICAL);
-	packShaders->spacing(0);
-	packShaders->begin();
+    Fl_Box* lightAngleTextbox = new Fl_Box(0, 0, lightPack->w(), 20, "Light Angle");
+    lightAngleSlider = new Fl_Value_Slider(0, 0, lightPack->w(), 20, "");
+    lightAngleSlider->align(FL_ALIGN_TOP);
+    lightAngleSlider->type(FL_HOR_SLIDER);
+    lightAngleSlider->bounds(-120, 120);
+    lightAngleSlider->step(1);
+    lightAngleSlider->value(canvas->lightAngle);
+    lightAngleSlider->callback(floatCB, (void*)(&(canvas->lightAngle)));
 
-	Fl_Box* lightAngleTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Angle");
-	lightAngleSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	lightAngleSlider->align(FL_ALIGN_TOP);
-	lightAngleSlider->type(FL_HOR_SLIDER);
-	lightAngleSlider->bounds(-90, 90);
-	lightAngleSlider->step(1);
-	lightAngleSlider->value(canvas->lightAngle);
-	lightAngleSlider->callback(floatCB, (void*)(&(canvas->lightAngle)));
+    Fl_Box* lightIntensityTextbox = new Fl_Box(0, 0, lightPack->w(), 20, "Light Intensity");
+    lightIntensitySlider = new Fl_Value_Slider(0, 0, lightPack->w(), 20, "");
+    lightIntensitySlider->align(FL_ALIGN_TOP);
+    lightIntensitySlider->type(FL_HOR_SLIDER);
+    lightIntensitySlider->bounds(0, 2.0f);
+    lightIntensitySlider->step(0.01);
+    lightIntensitySlider->value(canvas->lightIntensity);
+    lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));
 
-    Fl_Box* lightElevationTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Elevation");
-	lightElevationSlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	lightElevationSlider->align(FL_ALIGN_TOP);
-	lightElevationSlider->type(FL_HOR_SLIDER);
-	lightElevationSlider->bounds(-5, 45);
-	lightElevationSlider->step(1);
-	lightElevationSlider->value(canvas->lightAngle);
-	lightElevationSlider->callback(floatCB, (void*)(&(canvas->lightElevation)));
+    lightPack->end();
 
-	Fl_Box* lightIntensityTextbox = new Fl_Box(0, 0, pack->w() - 20, 20, "Light Intensity");
-	lightIntensitySlider = new Fl_Value_Slider(0, 0, pack->w() - 20, 20, "");
-	lightIntensitySlider->align(FL_ALIGN_TOP);
-	lightIntensitySlider->type(FL_HOR_SLIDER);
-	lightIntensitySlider->bounds(0, 0.75f);
-	lightIntensitySlider->step(0.01);
-	lightIntensitySlider->value(canvas->lightAngle);
-	lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));
+    packLeft->end();
 
-	reloadButton = new Fl_Button(0, 0, pack->w() - 20, 20, "Reload");
-	reloadButton->callback(reloadCB, (void*)this);
+    // Right column pack for Wave and Shader Controls
+    Fl_Pack* packRight = new Fl_Pack(w() - 150, 30, 150, h() - 40, "");
+    packRight->box(FL_DOWN_FRAME);
+    packRight->type(Fl_Pack::VERTICAL);
+    packRight->spacing(20);
+    packRight->begin();
 
-	packShaders->end();
+    // Wave Controls Pack
+    Fl_Pack* wavePack = new Fl_Pack(0, 0, packRight->w(), 100, "Wave Controls");
+    wavePack->box(FL_DOWN_FRAME);
+    wavePack->labelfont(FL_BOLD);
+    wavePack->type(Fl_Pack::VERTICAL);
+    wavePack->spacing(10);
+    wavePack->begin();
 
-	end();
+    Fl_Box* waveAmplitudeTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Amplitude");
+    waveAmplitudeSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
+    waveAmplitudeSlider->align(FL_ALIGN_TOP);
+    waveAmplitudeSlider->type(FL_HOR_SLIDER);
+    waveAmplitudeSlider->bounds(0, 0.1f);
+    waveAmplitudeSlider->step(0.001);
+    waveAmplitudeSlider->value(canvas->waveAmplitude);
+    waveAmplitudeSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
+
+    Fl_Box* waveFrequencyTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Frequency");
+    waveFrequencySlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
+    waveFrequencySlider->align(FL_ALIGN_TOP);
+    waveFrequencySlider->type(FL_HOR_SLIDER);
+    waveFrequencySlider->bounds(0.5, 5.0f);
+    waveFrequencySlider->step(0.01);
+    waveFrequencySlider->value(canvas->waveFrequency);
+    waveFrequencySlider->callback(floatCB, (void*)(&(canvas->waveFrequency)));
+
+    wavePack->end();
+
+    // Shader Controls Pack
+    Fl_Pack* shaderPack = new Fl_Pack(0, 0, packRight->w(), 100, "Shader Controls");
+    shaderPack->box(FL_DOWN_FRAME);
+    shaderPack->labelfont(FL_BOLD);
+    shaderPack->type(Fl_Pack::VERTICAL);
+    shaderPack->spacing(10);
+    shaderPack->begin();
+
+    reloadButton = new Fl_Button(0, 0, shaderPack->w(), 30, "Reload Shaders");
+    reloadButton->callback(reloadCB, (void*)this);
+
+    shaderPack->end();
+
+    packRight->end();
+
+    end();
 }
 
 
@@ -205,3 +255,39 @@ int main(int argc, char** argv) {
 	win->show();
 	return(Fl::run());
 }
+
+//Fl_Box* waveAmplitudeTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Amplitude");
+//waveAmplitudeSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
+//waveAmplitudeSlider->align(FL_ALIGN_TOP);
+//waveAmplitudeSlider->type(FL_HOR_SLIDER);
+//waveAmplitudeSlider->bounds(0, 0.1f);
+//waveAmplitudeSlider->step(0.001);
+//waveAmplitudeSlider->value(canvas->waveAmplitude);
+//waveAmplitudeSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
+//
+//Fl_Box* waveFrequencyTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Frequency");
+//waveFrequencySlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
+//waveFrequencySlider->align(FL_ALIGN_TOP);
+//waveFrequencySlider->type(FL_HOR_SLIDER);
+//waveFrequencySlider->bounds(0.5, 5.0f);
+//waveFrequencySlider->step(0.01);
+//waveFrequencySlider->value(canvas->waveAmplitude);
+//waveFrequencySlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
+//
+//Fl_Box* waveSpeedXTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Speed X");
+//waveSpeedXSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
+//waveSpeedXSlider->align(FL_ALIGN_TOP);
+//waveSpeedXSlider->type(FL_HOR_SLIDER);
+//waveSpeedXSlider->bounds(-1.0f, 1.0f);
+//waveSpeedXSlider->step(0.01);
+//waveSpeedXSlider->value(canvas->waveAmplitude);
+//waveSpeedXSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
+//
+//Fl_Box* waveSpeedYTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Speed Y");
+//waveSpeedYSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
+//waveSpeedYSlider->align(FL_ALIGN_TOP);
+//waveSpeedYSlider->type(FL_HOR_SLIDER);
+//waveSpeedYSlider->bounds(-1.0, 1.0f);
+//waveSpeedYSlider->step(0.01);
+//waveSpeedYSlider->value(canvas->waveAmplitude);
+//waveSpeedYSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));

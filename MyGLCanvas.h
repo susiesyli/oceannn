@@ -17,6 +17,8 @@
 #include <time.h>
 #include <iostream>
 #include <chrono>
+#include <vector>
+#include <string>
 
 #include "TextureManager.h"
 #include "ShaderManager.h"
@@ -38,7 +40,6 @@ public:
 
 	float lightAngle; //used to control where the light is coming from
     // add: light elevation angle 
-    float lightElevation; 
 	float lightIntensity;
 	int viewAngle;
 	float clipNear;
@@ -50,6 +51,8 @@ public:
 	glm::vec2 waveSpeed;
 	float waveAmplitude;
 	float waveFrequency;
+	float waveSpeedX;
+	float waveSpeedY;
 
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
 	~MyGLCanvas();

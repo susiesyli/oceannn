@@ -2,6 +2,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+//using namespace std;
+
 MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window(x, y, w, h, l) {
 	mode(FL_OPENGL3 | FL_RGB | FL_ALPHA | FL_DEPTH | FL_DOUBLE);
 
@@ -15,7 +17,6 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	clipNear = 0.01f;
 	clipFar = 20000.0f;
 	lightAngle = 0.0f;
-    lightElevation = 0.0f;
 	lightIntensity = 0.0f;
 	textureBlend = 1.0f;
 	repeatU = 5;
@@ -45,18 +46,18 @@ MyGLCanvas::~MyGLCanvas() {
 void MyGLCanvas::initShaders() {
     // load 6 faces of sky box 
     std::vector<std::string> skyboxFaces = {
-        "./data/skybox/sky.ppm",
-        "./data/skybox/sky.ppm",
-        "./data/skybox/sky.ppm",
-        "./data/skybox/sky.ppm",
-        "./data/skybox/sky.ppm",
-        "./data/skybox/sky.ppm"
+        "./data/skybox/lol.ppm",
+        "./data/skybox/lol.ppm",
+        "./data/skybox/sky7.ppm",
+        "./data/skybox/sky8.ppm",
+        "./data/skybox/sky99.ppm",
+        "./data/skybox/sky5656.ppm"
     };
     myTextureManager->loadCubeMap("environMap", skyboxFaces);
 
     // the original environment mapping line 
 	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
-	myTextureManager->loadTexture("objectTexture", "./data/ocean_.ppm");
+	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -169,9 +170,9 @@ void MyGLCanvas::drawScene() {
 	// add pass light angle 
 	glm::vec4 lightPos(0.0f, 0.0f, 1.0f, 0.0f);
     // add light rotation angle 
-	lightPos = glm::rotate(glm::mat4(1.0), TO_RADIANS(lightAngle), glm::vec3(0.0, 1.0, 0.0)) * lightPos;
-    // add light elevation angle 
-    lightPos = glm::rotate(glm::mat4(1.0), TO_RADIANS(lightElevation), glm::vec3(-1.0, 0.0, 0.0)) * lightPos;
+	lightPos = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Initial light position
+	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), TO_RADIANS(lightAngle), glm::vec3(0.0, 0.0, 1.0));
+	lightPos = rotationMatrix * lightPos;
 
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
 
@@ -230,7 +231,7 @@ void MyGLCanvas::drawScene() {
 	// Create sun model matrix (scaled up) 
 	glm::mat4 sunModelMatrix = glm::mat4(1.0f);
 	sunModelMatrix = glm::translate(sunModelMatrix, glm::vec3(lightPos));
-	sunModelMatrix = glm::scale(sunModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+	sunModelMatrix = glm::scale(sunModelMatrix, glm::vec3(0.25f, 0.25f, 0.25f));
 	// Pass matrix uniforms for environment shader
 	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));

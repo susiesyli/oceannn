@@ -24,6 +24,7 @@
 #include "ppm.h"
 
 #include <map>
+#include <vector>
 
 class TextureManager {
 	public:

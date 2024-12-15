@@ -15,18 +15,33 @@ uniform float time;
 uniform vec2 waveSpeed;
 uniform float waveAmplitude;
 uniform float waveFrequency;
+//uniform sampler2D skyTexture;
 
 out vec4 outputColor;
 
-ufloat hashRandom(ufloat x) {
-    x += ( x << 10u );
-    x ^= ( x >> 6u );
-    x += ( x << 3u );
-    x ^= ( x >> 11u );
-    x += ( x << 15u );
-    
-    return x;
+vec3 calculateEnvironmentColor(vec3 lightDirection) {
+    vec3 normLight = normalize(lightDirection);
 
+    float elevation = normLight.y;
+
+    vec3 sunriseColor = vec3(1.0, 0.5, 0.2);
+    vec3 dayColor = vec3(0.5, 0.8, 1.0);
+    vec3 sunsetColor = vec3(1.0, 0.4, 0.2);
+    vec3 nightColor = vec3(0.05, 0.05, 0.2);
+
+    vec3 environmentColor;
+    if (elevation > 0.5) {
+        // Bright day
+        environmentColor = mix(dayColor, sunriseColor, (1.0 - elevation) * 2.0);
+    } else if (elevation > 0.0) {
+        // Sunrise/sunset
+        environmentColor = mix(sunriseColor, nightColor, 1.0 - elevation * 2.0);
+    } else {
+        // Nighttime
+        environmentColor = mix(nightColor, sunsetColor, elevation + 1.0);
+    }
+
+    return environmentColor;
 }
 
 vec2 planarTextureCoords(vec3 point, float time) {
@@ -48,19 +63,44 @@ void main() {
     vec2 texCoord = planarTextureCoords(fragPosition, time);
 
     vec4 environColor = texture(environMap, texCoord);
-
     vec4 objectColor = texture(objectTexture, texCoord);
 
     vec4 finalTexture = mix(environColor, objectColor, textureBlend);
 
-    vec4 diffuseColor = vec4(1.0);
-    
+    // Lighting calculation
     vec3 norm = normalize(fragNormal);
     vec3 lightDir = normalize(lightPos - fragPosition);
     float diff = max(dot(norm, lightDir), 0.0);
-    diff += lightIntensity;
 
-    diffuseColor = vec4(diff * vec3(1.0), 1.0);
+    // Scale diffuse lighting by lightIntensity
+    vec3 diffuseLight = lightIntensity * diff * vec3(1.0, 1.0, 1.0);
 
+    // Beam effect
+    vec3 horizontalLightPos = vec3(lightPos.x, 0.0, lightPos.z);
+    vec3 horizontalViewPos = vec3(viewPos.x, 0.0, viewPos.z);
+    vec3 horizontalFragPos = vec3(fragPosition.x, 0.0, fragPosition.z);
+
+    vec3 beamDir = normalize(horizontalViewPos - horizontalLightPos);
+    vec3 fragToBeamStart = horizontalFragPos - horizontalLightPos;
+    float beamProj = dot(fragToBeamStart, beamDir);
+    vec3 closestPointOnBeam = horizontalLightPos + beamProj * beamDir;
+    float distanceToBeam = length(horizontalFragPos - closestPointOnBeam);
+
+    // Beam attenuation based on distance
+    float beamRadius = 0.1;
+    float beamFalloff = 10.0;
+    float beamIntensity = exp(-distanceToBeam * beamFalloff);
+
+    // Smooth the edges of the beam
+    beamIntensity *= smoothstep(0.0, beamRadius, beamRadius - distanceToBeam);
+
+    // Increase beam intensity based on the y-position of the light
+    float heightFactor = lightPos.y * 0.5;
+    beamIntensity *= (1.0 + heightFactor);
+
+    vec3 beamLight = beamIntensity * vec3(1.0, 1.0, 1.0);
+
+    // Combine lighting effects
+    vec4 diffuseColor = vec4(diffuseLight + beamLight, 1.0);
     outputColor = finalTexture * diffuseColor;
 }
