@@ -77,6 +77,7 @@ private:
 	ply* myObjectPLY;
 	ply* myEnvironmentPLY;
 	ply* mySunPLY;
+	ply* myParticlePLY;
 
 	glm::mat4 perspectiveMatrix;
 
