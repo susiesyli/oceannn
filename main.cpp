@@ -236,12 +236,17 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     shaderPack->spacing(10);
     shaderPack->begin();
 
+    std::cout<< "reload shader called" << endl;
     reloadButton = new Fl_Button(0, 0, shaderPack->w(), 30, "Reload Shaders");
+    std::cout<< "seg fault 1" << endl;
     reloadButton->callback(reloadCB, (void*)this);
+    std::cout<< "seg fault 2" << endl;
 
     shaderPack->end();
+    std::cout<< "seg fault 3" << endl;
 
     packRight->end();
+    std::cout<< "seg fault 4" << endl;
 
     end();
 }

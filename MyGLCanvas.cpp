@@ -46,18 +46,15 @@ MyGLCanvas::~MyGLCanvas() {
 void MyGLCanvas::initShaders() {
     // load 6 faces of sky box 
     std::vector<std::string> skyboxFaces = {
-        "./data/skybox/lol.ppm",
-        "./data/skybox/lol.ppm",
-        "./data/skybox/sky7.ppm",
-        "./data/skybox/sky8.ppm",
-        "./data/skybox/sky99.ppm",
-        "./data/skybox/sky5656.ppm"
+        "./data/skybox/right.ppm",
+        "./data/skybox/left.ppm",
+        "./data/skybox/bottom.ppm",
+        "./data/skybox/top.ppm",
+        "./data/skybox/front.ppm",
+        "./data/skybox/back.ppm"
     };
-    myTextureManager->loadCubeMap("environMap", skyboxFaces);
-
-    // the original environment mapping line 
-	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
-	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm");
+    myTextureManager->loadCubeMap("environMap", skyboxFaces); // load environment map 
+	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm"); // load object (ocean) map 
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -71,7 +68,6 @@ void MyGLCanvas::initShaders() {
 	mySunPLY->buildArrays();
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
-
 
 void MyGLCanvas::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -94,7 +90,6 @@ void MyGLCanvas::draw() {
 			initShaders();
 		}
 	}
-
 	// Clear the buffer of colors in each bit plane.
 	// bit plane - A set of bits that are on or off (Think of a black and white image)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -109,15 +104,17 @@ void MyGLCanvas::drawScene() {
 
 	glm::mat4 modelMatrix = glm::mat4(1.0);
 
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -0.1f, 0.0f));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -0.1f, 2500.0f));
 
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.1f, 10000.0f));
+	// modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.1f, 10000.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.185f, 10000.0f));
 
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
+	// glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_TEXTURE_2D);
@@ -175,8 +172,6 @@ void MyGLCanvas::drawScene() {
 	lightPos = rotationMatrix * lightPos;
 
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
-
-
 	glm::vec4 rotatedEye = glm::inverse(viewMatrix) * glm::vec4(eyePosition, 1.0f);
 	glm::vec3 transformedEye = glm::vec3(rotatedEye);
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(transformedEye));
@@ -194,6 +189,7 @@ void MyGLCanvas::drawScene() {
 	GLint objectTextureLoc = glGetUniformLocation(objectShaderProgram, "objectTexture");
 	glUniform1i(environMapLoc, 0);  // GL_TEXTURE0
 	glUniform1i(objectTextureLoc, 1);  // GL_TEXTURE1
+    
 	myObjectPLY->renderVBO(myShaderManager->getShaderProgram("objectShaders")->programID);
 
 	// 2. draw the enviroment cube map
@@ -205,18 +201,21 @@ void MyGLCanvas::drawScene() {
 	GLint envViewLoc = glGetUniformLocation(environmentShaderProgram, "view");
 	GLint envProjLoc = glGetUniformLocation(environmentShaderProgram, "projection");
 	// Create environment model matrix (scaled up)
-	glm::mat4 environmentModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(7.0f, 7.0f, 7.0f));
+	glm::mat4 environmentModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    // environmentModelMatrix = glm::translate(environmentModelMatrix, glm::vec3(0.0f, -0.1f, 0.0f));
+
 	// Pass matrix uniforms for environment shader
 	glUniformMatrix4fv(envModelLoc, 1, GL_FALSE, glm::value_ptr(environmentModelMatrix));
 	glUniformMatrix4fv(envViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(envProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	// Pass texture unit for environment shader
-    GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
-	// GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "environMap");
-	glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
-    glDepthMask(GL_FALSE); // Disable depth writes
+    // GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
+	// glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
+    glDepthMask(GL_FALSE); // Disable depth writes, makes sure the sun shows up 
+    glDepthFunc(GL_LEQUAL); 
 	myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
     glDepthMask(GL_TRUE);  // Re-enable depth writes
+    glDepthFunc(GL_LESS);   
 
 
 

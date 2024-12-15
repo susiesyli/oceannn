@@ -13,11 +13,11 @@ out vec3 fragNormal;
 void main()
 {
     // Transform vertex position to world space
-    fragPosition = vec3(model * vec4(myPosition, 1.0));
+    fragPosition = vec3(model * vec4(myPosition, 1));
     
     // Transform normal to world space (using inverse transpose to handle non-uniform scaling)
     fragNormal = mat3(transpose(inverse(model))) * myNormal;
     
     // Compute final vertex position
-    gl_Position = projection * view * model * vec4(myPosition, 1.0);
+    gl_Position = projection * view * model * vec4(myPosition, 1);
 }
