@@ -57,6 +57,7 @@ class ppm{
 
 		unsigned int bindTexture();
 		unsigned int getTextureID();
+        unsigned char* getImageData();
 
 private:
 		std::string magicNumber;	// Used in the header to determine

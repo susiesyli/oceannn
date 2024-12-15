@@ -13,7 +13,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 
 	viewAngle = 60;
 	clipNear = 0.01f;
-	clipFar = 10000.0f;
+	clipFar = 20000.0f;
 	lightAngle = 0.0f;
     lightElevation = 0.0f;
 	lightIntensity = 0.0f;
@@ -26,7 +26,6 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	waveFrequency = 1.5f;
 
 	//useDiffuse = true;
-
 	firstTime = true;
 
 	myTextureManager = new TextureManager();
@@ -44,7 +43,19 @@ MyGLCanvas::~MyGLCanvas() {
 }
 
 void MyGLCanvas::initShaders() {
-	myTextureManager->loadTexture("environMap", "./data/lol.ppm");
+    // load 6 faces of sky box 
+    std::vector<std::string> skyboxFaces = {
+        "./data/skybox/sky.ppm",
+        "./data/skybox/sky.ppm",
+        "./data/skybox/sky.ppm",
+        "./data/skybox/sky.ppm",
+        "./data/skybox/sky.ppm",
+        "./data/skybox/sky.ppm"
+    };
+    myTextureManager->loadCubeMap("environMap", skyboxFaces);
+
+    // the original environment mapping line 
+	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
 	myTextureManager->loadTexture("objectTexture", "./data/ocean_.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
@@ -59,7 +70,6 @@ void MyGLCanvas::initShaders() {
 	mySunPLY->buildArrays();
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
-
 
 
 void MyGLCanvas::draw() {
@@ -92,7 +102,6 @@ void MyGLCanvas::draw() {
 
 void MyGLCanvas::drawScene() {
 	glm::mat4 viewMatrix = glm::lookAt(eyePosition, lookatPoint, glm::vec3(0.0f, 1.0f, 0.0f));
-
 	viewMatrix = glm::rotate(viewMatrix, TO_RADIANS(rotWorldVec.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	viewMatrix = glm::rotate(viewMatrix, TO_RADIANS(rotWorldVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	viewMatrix = glm::rotate(viewMatrix, TO_RADIANS(rotWorldVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -112,8 +121,14 @@ void MyGLCanvas::drawScene() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_TEXTURE_2D);
 	//Pass first texture info to our shader 
+    GLuint cubeMapID = myTextureManager->getCubeMapTextureID("environMap");
+    if (cubeMapID == 0) {
+        std::cerr << "Cube map texture ID is 0. Skybox will not render!" << std::endl;
+    }
+
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
+    glBindTexture(GL_TEXTURE_CUBE_MAP, myTextureManager->getCubeMapTextureID("environMap")); // skybox cubemap texture 
+	// glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
 
@@ -178,59 +193,48 @@ void MyGLCanvas::drawScene() {
 	GLint objectTextureLoc = glGetUniformLocation(objectShaderProgram, "objectTexture");
 	glUniform1i(environMapLoc, 0);  // GL_TEXTURE0
 	glUniform1i(objectTextureLoc, 1);  // GL_TEXTURE1
-
-
 	myObjectPLY->renderVBO(myShaderManager->getShaderProgram("objectShaders")->programID);
 
-
-
-	//second draw the enviroment sphere
+	// 2. draw the enviroment cube map
 	glUseProgram(myShaderManager->getShaderProgram("environmentShaders")->programID);
-
 	// Get shader program
 	GLuint environmentShaderProgram = myShaderManager->getShaderProgram("environmentShaders")->programID;
-
 	// Variable binding for environment shader
 	GLint envModelLoc = glGetUniformLocation(environmentShaderProgram, "model");
 	GLint envViewLoc = glGetUniformLocation(environmentShaderProgram, "view");
 	GLint envProjLoc = glGetUniformLocation(environmentShaderProgram, "projection");
-
 	// Create environment model matrix (scaled up)
 	glm::mat4 environmentModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(7.0f, 7.0f, 7.0f));
-
 	// Pass matrix uniforms for environment shader
 	glUniformMatrix4fv(envModelLoc, 1, GL_FALSE, glm::value_ptr(environmentModelMatrix));
 	glUniformMatrix4fv(envViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(envProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-
 	// Pass texture unit for environment shader
-	GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "environMap");
+    GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
+	// GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "environMap");
 	glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
-
+    glDepthMask(GL_FALSE); // Disable depth writes
 	myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
+    glDepthMask(GL_TRUE);  // Re-enable depth writes
+
+
 
 	// draw sun sphere
 	glUseProgram(myShaderManager->getShaderProgram("sunShaders")->programID);
-
 	// Get shader program
 	GLuint sunShaderProgram = myShaderManager->getShaderProgram("sunShaders")->programID;
-
 	// Variable binding for environment shader
 	GLint sunModelLoc = glGetUniformLocation(sunShaderProgram, "sunModel");
 	GLint sunViewLoc = glGetUniformLocation(sunShaderProgram, "sunView");
 	GLint sunProjLoc = glGetUniformLocation(sunShaderProgram, "sunProjection");
-
 	// Create sun model matrix (scaled up) 
 	glm::mat4 sunModelMatrix = glm::mat4(1.0f);
-
 	sunModelMatrix = glm::translate(sunModelMatrix, glm::vec3(lightPos));
 	sunModelMatrix = glm::scale(sunModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-
 	// Pass matrix uniforms for environment shader
 	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-
 	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
 

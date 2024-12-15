@@ -18,17 +18,6 @@ uniform float waveFrequency;
 
 out vec4 outputColor;
 
-ufloat hashRandom(ufloat x) {
-    x += ( x << 10u );
-    x ^= ( x >> 6u );
-    x += ( x << 3u );
-    x ^= ( x >> 11u );
-    x += ( x << 15u );
-    
-    return x;
-
-}
-
 vec2 planarTextureCoords(vec3 point, float time) {
     float u = point.x * repeatU + time * waveSpeed.x; 
     float v = point.z * repeatV + time * waveSpeed.y;

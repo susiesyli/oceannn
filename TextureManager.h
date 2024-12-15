@@ -36,11 +36,14 @@ class TextureManager {
 		Postcondition:
 		=============================================== */
 		void loadTexture(std::string textureName, std::string fileName);
+        void loadCubeMap(std::string textureName, std::vector<std::string> faceFiles); // new func for skybox 
 		void deleteTexture(std::string textureName);
 		unsigned int getTextureID (std::string textureName);
+        unsigned int getCubeMapTextureID (std::string textureName);
 		
 	private:
 		std::map<std::string, ppm*> textures;
+        std::map<std::string, GLuint> cubeMapTextures; // new map for cube maps (skybox)
 };
 
 #endif

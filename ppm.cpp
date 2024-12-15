@@ -160,3 +160,7 @@ unsigned int ppm::bindTexture() {
 unsigned int ppm::getTextureID() {
 	return textureID;
 }
+
+unsigned char* ppm::getImageData() {
+    return reinterpret_cast<unsigned char*>(color); // Cast char* to unsigned char* 
+}
