@@ -26,6 +26,9 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	waveAmplitude = 0.02f;
 	waveFrequency = 1.5f;
 
+	fogColor = glm::vec3(0.8f, 0.8f, 0.8f);
+	fogDensity = 0.2f;
+
 	//useDiffuse = true;
 	firstTime = true;
 
@@ -44,16 +47,6 @@ MyGLCanvas::~MyGLCanvas() {
 }
 
 void MyGLCanvas::initShaders() {
-    // load 6 faces of sky box 
-    std::vector<std::string> skyboxFaces = {
-        "./data/skybox/lol.ppm",
-        "./data/skybox/lol.ppm",
-        "./data/skybox/sky7.ppm",
-        "./data/skybox/sky8.ppm",
-        "./data/skybox/sky99.ppm",
-        "./data/skybox/sky5656.ppm"
-    };
-    myTextureManager->loadCubeMap("environMap", skyboxFaces);
 
     // the original environment mapping line 
 	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
@@ -122,14 +115,10 @@ void MyGLCanvas::drawScene() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_TEXTURE_2D);
 	//Pass first texture info to our shader 
-    GLuint cubeMapID = myTextureManager->getCubeMapTextureID("environMap");
-    if (cubeMapID == 0) {
-        std::cerr << "Cube map texture ID is 0. Skybox will not render!" << std::endl;
-    }
 
 	glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, myTextureManager->getCubeMapTextureID("environMap")); // skybox cubemap texture 
-	// glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
+    //glBindTexture(GL_TEXTURE_CUBE_MAP, myTextureManager->getCubeMapTextureID("environMap")); // skybox cubemap texture 
+	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
 
@@ -159,6 +148,9 @@ void MyGLCanvas::drawScene() {
 	GLint waveSpeedLoc = glGetUniformLocation(objectShaderProgram, "waveSpeed");
 	GLint waveAmplitudeLoc = glGetUniformLocation(objectShaderProgram, "waveAmplitude");
 	GLint waveFrequencyLoc = glGetUniformLocation(objectShaderProgram, "waveFrequency");
+	GLint fogColorLoc = glGetUniformLocation(objectShaderProgram, "fogColor");
+	GLint fogDensityLoc = glGetUniformLocation(objectShaderProgram, "fogDensity");
+
 
 	// Pass matrix uniforms
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -188,6 +180,8 @@ void MyGLCanvas::drawScene() {
 	glUniform1f(waveAmplitudeLoc, waveAmplitude);
 	glUniform1f(waveFrequencyLoc, waveFrequency);
 	glUniform1f(lightIntensityLoc, lightIntensity);
+	glUniform3fv(fogColorLoc, 1, glm::value_ptr(fogColor));
+	glUniform1f(fogDensityLoc, fogDensity);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
@@ -211,12 +205,12 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(envViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(envProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	// Pass texture unit for environment shader
-    GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
+   // GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
 	// GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "environMap");
-	glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
-    glDepthMask(GL_FALSE); // Disable depth writes
-	myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
-    glDepthMask(GL_TRUE);  // Re-enable depth writes
+	//glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
+    //glDepthMask(GL_FALSE); // Disable depth writes
+	//myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
+    //glDepthMask(GL_TRUE);  // Re-enable depth writes
 
 
 
