@@ -346,6 +346,17 @@ int MyGLCanvas::handle(int e) {
             }
             return 1;
         }
+        case FL_MOUSEWHEEL: {
+            // Zoom in/out with mouse wheel
+            float zoomFactor = Fl::event_dy() * 0.1f;
+            eyePosition.z += zoomFactor;
+
+            // Limit zoom range
+            eyePosition.z = std::max(1.0f, std::min(10.0f, eyePosition.z));
+
+            redraw();
+            return 1;
+        }
     }
 	return Fl_Gl_Window::handle(e);
 }
