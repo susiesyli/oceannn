@@ -1,6 +1,7 @@
 #include "MyGLCanvas.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 //using namespace std;
 
@@ -32,7 +33,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	noiseScale = 0.1f;
 	noiseSpeed = 0.5f;
 
-	numDrops = 500;
+	numDrops = 1000;
 
 	//useDiffuse = true;
 	firstTime = true;
@@ -42,8 +43,9 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myObjectPLY = new ply("./data/cube.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
 	mySunPLY = new ply("./data/sphere.ply");
+    myRainPLY = new ply("./data/sphere.ply");
 
-	rainDrops = initDrops();
+	initDrops();
 }
 
 MyGLCanvas::~MyGLCanvas() {
@@ -57,11 +59,7 @@ void MyGLCanvas::initShaders() {
 
     // the original environment mapping line 
 	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
-<<<<<<< Updated upstream
 	myTextureManager->loadTexture("objectTexture", "./data/wave.ppm");
-=======
-	myTextureManager->loadTexture("objectTexture", "./data/new-ocean-texture.ppm");
->>>>>>> Stashed changes
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -74,9 +72,13 @@ void MyGLCanvas::initShaders() {
 	myShaderManager->addShaderProgram("sunShaders", "shaders/330/sun-vert.shader", "shaders/330/sun-frag.shader");
 	mySunPLY->buildArrays();
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+    myShaderManager->addShaderProgram("rainShaders", "shaders/330/rain-vert.shader", "shaders/330/rain-frag.shader");
+	myRainPLY->buildArrays();
+	myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
 }
 
-std::vector<rainParticle> MyGLCanvas::initDrops() {
+void MyGLCanvas::initDrops() {
 	float oceanSize = 50.0f;
 
 	std::vector<std::pair<int, int>> coordinates;
@@ -92,14 +94,15 @@ std::vector<rainParticle> MyGLCanvas::initDrops() {
 
 	for (int i = 0; i < numDrops; i++) {
 		ply* currDropPLY = new ply("./data/sphere.ply");
-		float speed = 0.2f;
+		// float speed = 0.2f;
 		glm::mat4 modelMatrix = glm::mat4(1.0);
 		std::pair<int, int> coordinate = coordinates[i];
-		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first, 5.0f, (float)coordinate.second));
+		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first, 0.0f, (float)coordinate.second));
 		rainParticle currParticle; 
 		currParticle.rainDrop = currDropPLY;
 		currParticle.speed = 0.5f;
 		currParticle.modelMatrix = modelMatrix;
+        rainDrops.emplace_back(currParticle);
 	}
 
 }
@@ -246,13 +249,36 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(envViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(envProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	// Pass texture unit for environment shader
-   // GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
+    // GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "cubeMap");
 	// GLint environMapLocEnv = glGetUniformLocation(environmentShaderProgram, "environMap");
 	//glUniform1i(environMapLocEnv, 0);  // GL_TEXTURE0
     //glDepthMask(GL_FALSE); // Disable depth writes
 	//myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
     //glDepthMask(GL_TRUE);  // Re-enable depth writes
 
+    // shade raindrops 
+    // loop through all num drops and pass them to the rain shader
+    glUseProgram(myShaderManager->getShaderProgram("rainShaders")->programID);
+    // Get shader program
+    GLuint rainShaderProgram = myShaderManager->getShaderProgram("rainShaders")->programID;
+    // Variable binding for environment shader
+    GLint rainModelLoc = glGetUniformLocation(rainShaderProgram, "rainModel");
+    viewLoc = glGetUniformLocation(rainShaderProgram, "rainView");
+    projLoc = glGetUniformLocation(rainShaderProgram, "rainProjection");
+
+    for (int i = 0; i < numDrops; i++) {
+        // Create rain model matrix (scaled up) 
+        glm::mat4 rainModelMatrix = rainDrops[i].modelMatrix;
+        rainModelMatrix *= 0.05;
+
+        // rainModelMatrix = glm::translate(rainModelMatrix, glm::vec3(lightPos));
+        rainModelMatrix = glm::scale(rainModelMatrix, glm::vec3(0.01f, 0.01f, 0.01f));
+        // Pass matrix uniforms for environment shader
+        glUniformMatrix4fv(rainModelLoc, 1, GL_FALSE, glm::value_ptr(rainModelMatrix));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+        mySunPLY->renderVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
+    }
 
 
 	// draw sun sphere

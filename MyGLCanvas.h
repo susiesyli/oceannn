@@ -81,7 +81,7 @@ private:
 	void drawScene();
 
 	void initShaders();
-	std::vector<rainParticle> initDrops();
+	void initDrops();
 
 	int handle(int);
 	void resize(int x, int y, int w, int h);
@@ -92,7 +92,7 @@ private:
 	ply* myObjectPLY;
 	ply* myEnvironmentPLY;
 	ply* mySunPLY;
-
+	ply* myRainPLY;
 
 	glm::mat4 perspectiveMatrix;
 
