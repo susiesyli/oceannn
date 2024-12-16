@@ -21,6 +21,7 @@ uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float noiseScale;
 uniform float noiseSpeed;
+uniform bool useFog;
 
 out vec4 outputColor;
 
@@ -247,23 +248,33 @@ void main() {
     vec4 diffuseColor = vec4(lightingEffect, 1.0);
     vec3 finalColor = (finalTexture.rgb * lightingEffect);
 
-    // Perlin Noise Fog Calculation
-    float distanceToCamera = length(viewPos - fragPosition);
+    if (useFog) {
+        // Calculate distance-based fog factor
+        float distanceToCamera = length(viewPos - fragPosition);
+        float baseFogFactor = exp(-distanceToCamera * fogDensity);
 
-    // Add 4D noise to create dynamic, moving fog
-    vec4 noiseInput = vec4(fragPosition * noiseScale, time * noiseSpeed);
-    float noise = cnoise(noiseInput);
+        // Layered Perlin Noise for fog
+        vec4 noiseInput = vec4(fragPosition * noiseScale, time * noiseSpeed);
+        float baseNoise = cnoise(noiseInput) * 0.5 + 0.5;
 
-    // Normalize noise to [0,1] range
-    noise = noise * 0.5 + 0.5;
+        // Add more layers of noise for complexity
+        float layeredNoise = baseNoise;
+        layeredNoise += (cnoise(noiseInput * 2.0) * 0.25 + 0.25);
+        layeredNoise += (cnoise(noiseInput * 4.0) * 0.125 + 0.125);
 
-    // Modify fog factor with noise
-    float fogFactor = exp(-distanceToCamera * fogDensity);
-    fogFactor *= mix(0.7, 1.0, noise);  // Vary fog density with noise
-    fogFactor = clamp(fogFactor, 0.0, 1.0);
+        // Combine noise layers and adjust contrast
+        float noise = pow(layeredNoise, 1.5);
 
-    // Mix the final color with fog color
-    vec3 foggedColor = mix(fogColor, finalColor, fogFactor);
+        // Modulate fog factor with noise
+        float fogFactor = baseFogFactor * mix(0.8, 1.2, noise);
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-    outputColor = vec4(foggedColor, 1.0);
+        // Mix fog color with the final color
+        vec3 foggedColor = mix(fogColor, finalColor, fogFactor);
+
+        outputColor = vec4(foggedColor, 1.0);
+    } else {
+        outputColor = vec4(finalColor, 1.0);
+    }
+    
 }
