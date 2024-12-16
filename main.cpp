@@ -45,6 +45,9 @@ public:
 
     // fog sliders
     Fl_Slider* fogDensitySlider;
+    Fl_Slider* noiseScaleSlider;
+    Fl_Slider* noiseSpeedSlider;
+
 	
 	// shader button
 	Fl_Button* reloadButton;
@@ -209,6 +212,16 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     fogDensitySlider->step(0.01f);
     fogDensitySlider->value(canvas->fogDensity);
     fogDensitySlider->callback(floatCB, (void*)(&(canvas->fogDensity)));
+
+    Fl_Box* noiseScaleTextbox = new Fl_Box(0, 0, fogPack->w(), 20, "Wind");
+    noiseScaleSlider = new Fl_Value_Slider(0, 0, fogPack->w(), 20, "");
+    noiseScaleSlider->align(FL_ALIGN_TOP);
+    noiseScaleSlider->type(FL_HOR_SLIDER);
+    noiseScaleSlider->bounds(0.0f, 1.0f);
+    noiseScaleSlider->step(0.01f);
+    noiseScaleSlider->value(canvas->noiseScale);
+    noiseScaleSlider->callback(floatCB, (void*)(&(canvas->noiseScale)));
+
 
     fogPack->end();
 

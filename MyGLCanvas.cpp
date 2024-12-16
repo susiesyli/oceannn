@@ -32,6 +32,8 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	noiseScale = 0.1f;
 	noiseSpeed = 0.5f;
 
+	numDrops = 500;
+
 	//useDiffuse = true;
 	firstTime = true;
 
@@ -40,6 +42,8 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myObjectPLY = new ply("./data/cube.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
 	mySunPLY = new ply("./data/sphere.ply");
+
+	rainDrops = initDrops();
 }
 
 MyGLCanvas::~MyGLCanvas() {
@@ -53,7 +57,11 @@ void MyGLCanvas::initShaders() {
 
     // the original environment mapping line 
 	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
+<<<<<<< Updated upstream
 	myTextureManager->loadTexture("objectTexture", "./data/wave.ppm");
+=======
+	myTextureManager->loadTexture("objectTexture", "./data/new-ocean-texture.ppm");
+>>>>>>> Stashed changes
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -68,6 +76,33 @@ void MyGLCanvas::initShaders() {
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
 
+std::vector<rainParticle> MyGLCanvas::initDrops() {
+	float oceanSize = 50.0f;
+
+	std::vector<std::pair<int, int>> coordinates;
+	for (int x = 0; x < 50; x++) {
+		for (int z = 0; z < 50; z++) {
+			coordinates.emplace_back(x, z);
+		}
+	}
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::shuffle(coordinates.begin(), coordinates.end(), gen);
+
+	for (int i = 0; i < numDrops; i++) {
+		ply* currDropPLY = new ply("./data/sphere.ply");
+		float speed = 0.2f;
+		glm::mat4 modelMatrix = glm::mat4(1.0);
+		std::pair<int, int> coordinate = coordinates[i];
+		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first, 5.0f, (float)coordinate.second));
+		rainParticle currParticle; 
+		currParticle.rainDrop = currDropPLY;
+		currParticle.speed = 0.5f;
+		currParticle.modelMatrix = modelMatrix;
+	}
+
+}
 
 void MyGLCanvas::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -111,7 +146,7 @@ void MyGLCanvas::drawScene() {
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(10000.0f, 0.1f, 10000.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(100.0f, 0.1f, 100.0f));
 
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 

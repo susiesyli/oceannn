@@ -19,12 +19,19 @@
 #include <chrono>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <random> 
 
 #include "TextureManager.h"
 #include "ShaderManager.h"
 #include "ply.h"
 #include "gfxDefs.h"
 
+struct rainParticle {
+	ply* rainDrop;
+	float speed;
+	glm::mat4 modelMatrix;
+};
 
 class MyGLCanvas : public Fl_Gl_Window {
 public:
@@ -59,6 +66,8 @@ public:
 	float noiseScale;
 	float noiseSpeed;
 
+	int numDrops; 
+
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
 	~MyGLCanvas();
 
@@ -72,6 +81,7 @@ private:
 	void drawScene();
 
 	void initShaders();
+	std::vector<rainParticle> initDrops();
 
 	int handle(int);
 	void resize(int x, int y, int w, int h);
@@ -83,11 +93,14 @@ private:
 	ply* myEnvironmentPLY;
 	ply* mySunPLY;
 
+
 	glm::mat4 perspectiveMatrix;
 
 	bool firstTime;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+
+	std::vector<rainParticle> rainDrops;
 };
 
 #endif // !MYGLCANVAS_H
