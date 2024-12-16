@@ -33,7 +33,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	noiseScale = 0.1f;
 	noiseSpeed = 0.5f;
 
-	numDrops = 1000;
+	numDrops = 100;
 	useFog = false;
 
 	//useDiffuse = true;
@@ -80,26 +80,26 @@ void MyGLCanvas::initShaders() {
 }
 
 void MyGLCanvas::initDrops() {
-	float oceanSize = 50.0f;
+	std::vector<std::pair<float, float>> coordinates;
+	int grid_size = static_cast<int>(std::sqrt(numDrops)); // Assuming a square grid for simplicity
+	float step_size_x = 10.0f / (grid_size - 1);  // From -5 to 5, with grid_size steps
+	float step_size_z = 10.0f / (grid_size - 1);
 
-	std::vector<std::pair<int, int>> coordinates;
-	for (int x = 0; x < 50; x++) {
-		for (int z = 0; z < 50; z++) {
-			coordinates.emplace_back(x/2, z);
+	// Generate the coordinates uniformly across the grid
+	for (int i = 0; i < grid_size; i++) {
+		for (int j = 0; j < grid_size; j++) {
+			float x = -5 + i * step_size_x;  // x coordinate from -5 to 5
+			float z = -5 + j * step_size_z;  // z coordinate from -5 to 5
+			coordinates.emplace_back(x, z);
 		}
 	}
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::shuffle(coordinates.begin(), coordinates.end(), gen);
-
-
-
-	for (int i = 0; i < numDrops; i++) {
+	std::cout << "before array" << std::endl;
+	for (int i = 0; i < coordinates.size(); i++) {
 		ply* currDropPLY = new ply("./data/sphere.ply");
 		// float speed = 0.2f;
 		glm::mat4 modelMatrix = glm::mat4(1.0);
-		std::pair<int, int> coordinate = coordinates[i];
+		std::pair<float, float> coordinate = coordinates[i];
 
 		std::random_device rd;
 		std::mt19937 gen(rd());
@@ -108,14 +108,17 @@ void MyGLCanvas::initDrops() {
 
 		float random_number = dis(gen) / 50;
 
-		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first + random_number, 0.0f, (float)coordinate.second - random_number));
-		std::cout << (float)coordinate.first + random_number << ", " << ", 0.0, " << (float)coordinate.second - random_number << std::endl;
+		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first + random_number, 1.0f, (float)coordinate.second - random_number));
+		
+		//std::cout << (float)coordinate.first + random_number << ", " << "0.0, " << (float)coordinate.second - random_number << std::endl;
+		
 		rainParticle currParticle; 
 		currParticle.rainDrop = currDropPLY;
 		currParticle.speed = 0.5f;
 		currParticle.modelMatrix = modelMatrix;
 		rainDrops.emplace_back(currParticle);
 	}
+	std::cout << "after array!" << std::endl;
 }
 
 void MyGLCanvas::draw() {
@@ -286,7 +289,7 @@ void MyGLCanvas::drawScene() {
         rainModelMatrix *= 0.05;
 
         // rainModelMatrix = glm::translate(rainModelMatrix, glm::vec3(lightPos));
-        rainModelMatrix = glm::scale(rainModelMatrix, glm::vec3(0.01f, 0.01f, 0.01f));
+        rainModelMatrix = glm::scale(rainModelMatrix, glm::vec3(0.001f, 0.001f, 0.001f));
         // Pass matrix uniforms for environment shader
         glUniformMatrix4fv(rainModelLoc, 1, GL_FALSE, glm::value_ptr(rainModelMatrix));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -350,7 +353,7 @@ int MyGLCanvas::handle(int e) {
 	case FL_MOUSEWHEEL:
 		float zoomFactor = Fl::event_dy() * 0.1f;
 		eyePosition.z += zoomFactor;
-		eyePosition.z = std::max(2.0f, std::min(10.0f, eyePosition.z));
+		eyePosition.z = std::max(2.0f, std::min(5.0f, eyePosition.z));
 
 		redraw();
 		return 1;
