@@ -34,7 +34,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myObjectPLY = new ply("./data/cube.ply");
 	myEnvironmentPLY = new ply("./data/cube.ply");
 	mySunPLY = new ply("./data/sphere.ply");
-	myParticlePLY = new ply("./data/sphere.ply");
+	// myParticlePLY = new ply("./data/sphere.ply");
 }
 
 MyGLCanvas::~MyGLCanvas() {
@@ -57,7 +57,7 @@ void MyGLCanvas::initShaders() {
 
     myTextureManager->loadCubeMap("environMap", skyboxFaces); // load environment map 
 	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm"); // load object (ocean) map 
-	myTextureManager->loadTexture("fogTexture", "./data/top.ppm");
+	// myTextureManager->loadTexture("fogTexture", "./data/skybox/top.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -72,9 +72,9 @@ void MyGLCanvas::initShaders() {
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 
 
-	myShaderManager->addShaderProgram("particleShaders", "shaders/330/particle-vert.shader", "shaders/330/particle-frag.shader");
-	myParticlePLY->buildArrays();
-	myParticlePLY->bindVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
+	// myShaderManager->addShaderProgram("particleShaders", "shaders/330/particle-vert.shader", "shaders/330/particle-frag.shader");
+	// myParticlePLY->buildArrays();
+	// myParticlePLY->bindVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
 
 }
 
@@ -139,13 +139,11 @@ void MyGLCanvas::drawScene() {
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("fogTexture"));
+	// glActiveTexture(GL_TEXTURE2);
+	// glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("fogTexture"));
 
 	//first draw the object sphere
 	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
-
-	//TODO: add variable binding
 	GLuint objectShaderProgram = myShaderManager->getShaderProgram("objectShaders")->programID;
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -175,7 +173,6 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 
 	// Pass other uniforms
-
 	// add pass light angle 
 	glm::vec4 lightPos(0.0f, 0.0f, 1.0f, 0.0f);
     // add light rotation angle 
@@ -247,30 +244,34 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-	//mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+
+    // perlin fog 
+
 
 	// particles!
-	glUseProgram(myShaderManager->getShaderProgram("particleShaders")->programID);
-	GLuint particleShaderProgram = myShaderManager->getShaderProgram("particleShaders")->programID;
+	// glUseProgram(myShaderManager->getShaderProgram("particleShaders")->programID);
+	// GLuint particleShaderProgram = myShaderManager->getShaderProgram("particleShaders")->programID;
 
-	// Variable binding for environment shader
-	GLint particleModelLoc = glGetUniformLocation(particleShaderProgram, "particleModel");
-	GLint particleViewLoc = glGetUniformLocation(particleShaderProgram, "particleView");
-	GLint particleProjLoc = glGetUniformLocation(particleShaderProgram, "particleProjection");
-	GLint particleLightPosLoc = glGetUniformLocation(particleShaderProgram, "lightPos");
-	GLint particleTextureLoc = glGetUniformLocation(particleShaderProgram, "particleTexture");
+	// // Variable binding for environment shader
+	// GLint particleModelLoc = glGetUniformLocation(particleShaderProgram, "particleModel");
+	// GLint particleViewLoc = glGetUniformLocation(particleShaderProgram, "particleView");
+	// GLint particleProjLoc = glGetUniformLocation(particleShaderProgram, "particleProjection");
+	// GLint particleLightPosLoc = glGetUniformLocation(particleShaderProgram, "lightPos");
+	// GLint particleTextureLoc = glGetUniformLocation(particleShaderProgram, "particleTexture");
 
-	glm::mat4 particleModelMatrix = glm::mat4(1.0f);
-	particleModelMatrix = glm::translate(particleModelMatrix, glm::vec3(lightPos));
-	particleModelMatrix = glm::scale(particleModelMatrix, glm::vec3(0.75f, 0.75f, 0.75f));
+	// glm::mat4 particleModelMatrix = glm::mat4(1.0f);
+	// particleModelMatrix = glm::translate(particleModelMatrix, glm::vec3(lightPos));
+	// particleModelMatrix = glm::scale(particleModelMatrix, glm::vec3(0.75f, 0.75f, 0.75f));
 
-	glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(particleModelMatrix));
-	glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-	glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-	glUniform3fv(particleLightPosLoc, 1, glm::value_ptr(lightPos));
-	glUniform1i(particleTextureLoc, 2);
+	// glUniformMatrix4fv(particleModelLoc, 1, GL_FALSE, glm::value_ptr(particleModelMatrix));
+	// glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	// glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+	// glUniform3fv(particleLightPosLoc, 1, glm::value_ptr(lightPos));
+	// glUniform1i(particleTextureLoc, 2);
 
-	myParticlePLY->renderVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
+	// myParticlePLY->renderVBO(myShaderManager->getShaderProgram("particleShaders")->programID);
 
 }
 
@@ -284,6 +285,7 @@ void MyGLCanvas::updateCamera(int width, int height) {
 
 
 int MyGLCanvas::handle(int e) {
+    // ADDED FOR MOUSE
 	//static int first = 1;
 #ifndef __APPLE__
 	if (firstTime && e == FL_SHOW && shown()) {
@@ -301,15 +303,50 @@ int MyGLCanvas::handle(int e) {
 	}
 #endif	
 	//printf("Event was %s (%d)\n", fl_eventnames[e], e);
+
+    // MODIFIED FOR USER INTERACTION : 
+    static int lastX = 0, lastY = 0;
+    static bool isMouseDown = false;
+
+
 	switch (e) {
-	case FL_DRAG:
-	case FL_MOVE:
-	case FL_PUSH:
-	case FL_RELEASE:
-	case FL_KEYUP:
-	case FL_MOUSEWHEEL:
-		break;
-	}
+        case FL_DRAG: {
+            if (isMouseDown) {
+                // Calculate horizontal mouse movement
+                int dx = Fl::event_x() - lastX;
+
+                // Rotate world horizontally (only y-axis)
+                rotWorldVec.y += dx * 0.5f;  // Horizontal rotation only
+
+                // Normalize rotation to keep it within 0-360 degrees
+                rotWorldVec.y = fmod(rotWorldVec.y, 360.0f);
+
+                // Update last mouse position
+                lastX = Fl::event_x();
+
+                // Trigger redraw
+                redraw();
+                return 1;
+            }
+            break;
+        }
+
+        case FL_MOVE:
+        case FL_PUSH: {
+            // Left mouse button press
+            if (Fl::event_button() == FL_LEFT_MOUSE) {
+                isMouseDown = true;
+                lastX = Fl::event_x();
+            }
+            return 1; // Indicate event handled
+        }
+        case FL_RELEASE: {
+            if (Fl::event_button() == FL_LEFT_MOUSE) {
+                isMouseDown = false;
+            }
+            return 1;
+        }
+    }
 	return Fl_Gl_Window::handle(e);
 }
 
