@@ -233,7 +233,7 @@ void ply::loadGeometry() {
 		delete(lineCopy);
 		myfile.close();
 		scaleAndCenter();
-		cout << "completed loading: " << filePath.c_str() << "\n";
+		//cout << "completed loading: " << filePath.c_str() << "\n";
 	}
 	// if the path is invalid, report then exit.
 	else {

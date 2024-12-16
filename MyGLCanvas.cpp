@@ -85,7 +85,7 @@ void MyGLCanvas::initDrops() {
 	std::vector<std::pair<int, int>> coordinates;
 	for (int x = 0; x < 50; x++) {
 		for (int z = 0; z < 50; z++) {
-			coordinates.emplace_back(x, z);
+			coordinates.emplace_back(x/2, z);
 		}
 	}
 
@@ -93,12 +93,23 @@ void MyGLCanvas::initDrops() {
 	std::mt19937 gen(rd());
 	std::shuffle(coordinates.begin(), coordinates.end(), gen);
 
+
+
 	for (int i = 0; i < numDrops; i++) {
 		ply* currDropPLY = new ply("./data/sphere.ply");
 		// float speed = 0.2f;
 		glm::mat4 modelMatrix = glm::mat4(1.0);
 		std::pair<int, int> coordinate = coordinates[i];
-		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first, 0.0f, (float)coordinate.second));
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+
+		std::uniform_int_distribution<> dis(0, 50);
+
+		float random_number = dis(gen) / 50;
+
+		modelMatrix = glm::translate(modelMatrix, glm::vec3((float)coordinate.first + random_number, 0.0f, (float)coordinate.second - random_number));
+		std::cout << (float)coordinate.first + random_number << ", " << ", 0.0, " << (float)coordinate.second - random_number << std::endl;
 		rainParticle currParticle; 
 		currParticle.rainDrop = currDropPLY;
 		currParticle.speed = 0.5f;
@@ -149,7 +160,7 @@ void MyGLCanvas::drawScene() {
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(100.0f, 0.1f, 100.0f)); 
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(10.0f, 0.1f, 10.0f)); 
 
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 
