@@ -265,9 +265,7 @@ void MyGLCanvas::drawScene() {
     //glUniformMatrix4fv(rainModelLoc, 1, GL_FALSE, glm::value_ptr(rainModelMatrix));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-
     mySunPLY->renderVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
-
 
 	// draw sun sphere
 	glUseProgram(myShaderManager->getShaderProgram("sunShaders")->programID);
@@ -288,14 +286,11 @@ void MyGLCanvas::drawScene() {
 	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 }
 
-
 void MyGLCanvas::updateCamera(int width, int height) {
 	float xy_aspect;
 	xy_aspect = (float)width / (float)height;
-
 	perspectiveMatrix = glm::perspective(TO_RADIANS(viewAngle), xy_aspect, clipNear, clipFar);
 }
-
 
 int MyGLCanvas::handle(int e) {
 	//static int first = 1;
@@ -347,6 +342,12 @@ void MyGLCanvas::reloadShaders() {
 	myShaderManager->addShaderProgram("environmentShaders", "shaders/330/environment-vert.shader", "shaders/330/environment-frag.shader");
 	myEnvironmentPLY->bindVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
 
+    myShaderManager->addShaderProgram("sunShaders", "shaders/330/sun-vert.shader", "shaders/330/sun-frag.shader");
+	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+    myShaderManager->addShaderProgram("rainShaders", "shaders/330/rain-vert.shader", "shaders/330/rain-frag.shader");
+	myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
+
 	invalidate();
 }
 
@@ -366,4 +367,3 @@ void MyGLCanvas::loadObjectTexture(std::string filename) {
 	myTextureManager->deleteTexture("objectTexture");
 	myTextureManager->loadTexture("objectTexture", filename);
 }
-
