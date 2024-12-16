@@ -65,8 +65,10 @@ public:
 	float fogDensity;
 	float noiseScale;
 	float noiseSpeed;
+	bool useFog;
 
 	int numDrops; 
+
 
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
 	~MyGLCanvas();

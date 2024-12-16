@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-//using namespace std;
+using namespace std;
 
 MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window(x, y, w, h, l) {
 	mode(FL_OPENGL3 | FL_RGB | FL_ALPHA | FL_DEPTH | FL_DOUBLE);
@@ -34,6 +34,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	noiseSpeed = 0.5f;
 
 	numDrops = 1000;
+	useFog = false;
 
 	//useDiffuse = true;
 	firstTime = true;
@@ -102,9 +103,8 @@ void MyGLCanvas::initDrops() {
 		currParticle.rainDrop = currDropPLY;
 		currParticle.speed = 0.5f;
 		currParticle.modelMatrix = modelMatrix;
-        rainDrops.emplace_back(currParticle);
+		rainDrops.emplace_back(currParticle);
 	}
-
 }
 
 void MyGLCanvas::draw() {
@@ -149,7 +149,7 @@ void MyGLCanvas::drawScene() {
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMatrix = glm::rotate(modelMatrix, TO_RADIANS(rotVec.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(100.0f, 0.1f, 100.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(100.0f, 0.1f, 100.0f)); 
 
 	glm::vec4 lookVec(0.0f, 0.0f, -1.0f, 0.0f);
 
@@ -193,6 +193,8 @@ void MyGLCanvas::drawScene() {
 	GLint fogDensityLoc = glGetUniformLocation(objectShaderProgram, "fogDensity");
 	GLint noiseScaleLoc = glGetUniformLocation(objectShaderProgram, "noiseScale");
 	GLint noiseSpeedLoc = glGetUniformLocation(objectShaderProgram, "noiseSpeed");
+	GLint useFogLoc = glGetUniformLocation(objectShaderProgram, "useFog");
+
 
 	// Pass matrix uniforms
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -226,6 +228,7 @@ void MyGLCanvas::drawScene() {
 	glUniform1f(fogDensityLoc, fogDensity);
 	glUniform1f(noiseScaleLoc, noiseScale);
 	glUniform1f(noiseSpeedLoc, noiseSpeed);
+	glUniform1i(useFogLoc, useFog);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
@@ -334,6 +337,12 @@ int MyGLCanvas::handle(int e) {
 	case FL_RELEASE:
 	case FL_KEYUP:
 	case FL_MOUSEWHEEL:
+		float zoomFactor = Fl::event_dy() * 0.1f;
+		eyePosition.z += zoomFactor;
+		eyePosition.z = std::max(2.0f, std::min(10.0f, eyePosition.z));
+
+		redraw();
+		return 1;
 		break;
 	}
 	return Fl_Gl_Window::handle(e);
