@@ -17,6 +17,10 @@ uniform float waveAmplitude;
 uniform float waveFrequency;
 //uniform sampler2D skyTexture;
 
+// for procedural fog 
+uniform vec3 fogColor;
+uniform float fogDensity;
+
 out vec4 outputColor;
 
 vec3 calculateEnvironmentColor(vec3 lightDirection) {
@@ -113,6 +117,14 @@ void main() {
     finalColor.g *= 1.2;
     finalColor.b *= 1.5;
 
-    outputColor = vec4(finalColor, 1.0);
-}
+    // Fog calculation
+    float distanceToCamera = length(viewPos - fragPosition);
+    float fogFactor = exp(-distanceToCamera * fogDensity);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
 
+    // Mix the final color with fog color
+    vec3 foggedColor = mix(fogColor, finalColor, fogFactor);
+
+    outputColor = vec4(foggedColor, 1.0);
+    // outputColor = vec4(finalColor, 1.0);
+}
