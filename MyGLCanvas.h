@@ -27,11 +27,11 @@
 #include "ply.h"
 #include "gfxDefs.h"
 
-struct rainParticle {
-	ply* rainDrop;
-	float speed;
-	glm::mat4 modelMatrix;
-};
+//struct rainParticle {
+//	ply* rainDrop;
+//	float speed;
+//	glm::mat4 modelMatrix;
+//};
 
 class MyGLCanvas : public Fl_Gl_Window {
 public:
@@ -68,6 +68,7 @@ public:
 	bool useFog;
 
 	int numDrops; 
+	float rainSpeed;
 
 
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
@@ -102,7 +103,7 @@ private:
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
-	std::vector<rainParticle> rainDrops;
+	std::vector<glm::vec3> rainDrops;
 };
 
 #endif // !MYGLCANVAS_H
