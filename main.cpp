@@ -160,7 +160,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     rotYSlider->step(1);
     rotYSlider->value(canvas->rotWorldVec.y);
     rotYSlider->callback(floatCB, (void*)(&(canvas->rotWorldVec.y)));
-
+    // new changes!!!
     cameraPack->end();
 
     // Light Controls Pack
