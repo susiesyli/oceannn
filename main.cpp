@@ -42,6 +42,9 @@ public:
 	Fl_Slider* waveFrequencySlider;
 	Fl_Slider* waveSpeedXSlider;
 	Fl_Slider* waveSpeedYSlider;
+
+    // fog sliders
+    Fl_Slider* fogDensitySlider;
 	
 	// shader button
 	Fl_Button* reloadButton;
@@ -190,6 +193,24 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));
 
     lightPack->end();
+
+    Fl_Pack* fogPack = new Fl_Pack(0, 0, packLeft->w(), 180, "Fog Controls");
+    fogPack->box(FL_DOWN_FRAME);
+    fogPack->labelfont(FL_BOLD);
+    fogPack->type(Fl_Pack::VERTICAL);
+    fogPack->spacing(10);
+    fogPack->begin();
+
+    Fl_Box* fogDensityTextbox = new Fl_Box(0, 0, fogPack->w(), 20, "Fog Density");
+    fogDensitySlider = new Fl_Value_Slider(0, 0, fogPack->w(), 20, "");
+    fogDensitySlider->align(FL_ALIGN_TOP);
+    fogDensitySlider->type(FL_HOR_SLIDER);
+    fogDensitySlider->bounds(0.0f, 1.0f);
+    fogDensitySlider->step(0.01f);
+    fogDensitySlider->value(canvas->fogDensity);
+    fogDensitySlider->callback(floatCB, (void*)(&(canvas->fogDensity)));
+
+    fogPack->end();
 
     packLeft->end();
 

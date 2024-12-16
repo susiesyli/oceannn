@@ -29,6 +29,9 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	fogColor = glm::vec3(0.8f, 0.8f, 0.8f);
 	fogDensity = 0.2f;
 
+	noiseScale = 0.1f;
+	noiseSpeed = 0.5f;
+
 	//useDiffuse = true;
 	firstTime = true;
 
@@ -150,7 +153,8 @@ void MyGLCanvas::drawScene() {
 	GLint waveFrequencyLoc = glGetUniformLocation(objectShaderProgram, "waveFrequency");
 	GLint fogColorLoc = glGetUniformLocation(objectShaderProgram, "fogColor");
 	GLint fogDensityLoc = glGetUniformLocation(objectShaderProgram, "fogDensity");
-
+	GLint noiseScaleLoc = glGetUniformLocation(objectShaderProgram, "noiseScale");
+	GLint noiseSpeedLoc = glGetUniformLocation(objectShaderProgram, "noiseSpeed");
 
 	// Pass matrix uniforms
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -182,6 +186,8 @@ void MyGLCanvas::drawScene() {
 	glUniform1f(lightIntensityLoc, lightIntensity);
 	glUniform3fv(fogColorLoc, 1, glm::value_ptr(fogColor));
 	glUniform1f(fogDensityLoc, fogDensity);
+	glUniform1f(noiseScaleLoc, noiseScale);
+	glUniform1f(noiseSpeedLoc, noiseSpeed);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
