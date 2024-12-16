@@ -103,7 +103,7 @@ private:
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
-	std::vector<glm::vec3> rainDrops;
+	std::vector<glm::vec2> rainDrops;
 };
 
 #endif // !MYGLCANVAS_H
