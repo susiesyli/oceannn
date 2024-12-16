@@ -260,39 +260,3 @@ int main(int argc, char** argv) {
 	win->show();
 	return(Fl::run());
 }
-
-//Fl_Box* waveAmplitudeTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Amplitude");
-//waveAmplitudeSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
-//waveAmplitudeSlider->align(FL_ALIGN_TOP);
-//waveAmplitudeSlider->type(FL_HOR_SLIDER);
-//waveAmplitudeSlider->bounds(0, 0.1f);
-//waveAmplitudeSlider->step(0.001);
-//waveAmplitudeSlider->value(canvas->waveAmplitude);
-//waveAmplitudeSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
-//
-//Fl_Box* waveFrequencyTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Frequency");
-//waveFrequencySlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
-//waveFrequencySlider->align(FL_ALIGN_TOP);
-//waveFrequencySlider->type(FL_HOR_SLIDER);
-//waveFrequencySlider->bounds(0.5, 5.0f);
-//waveFrequencySlider->step(0.01);
-//waveFrequencySlider->value(canvas->waveAmplitude);
-//waveFrequencySlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
-//
-//Fl_Box* waveSpeedXTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Speed X");
-//waveSpeedXSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
-//waveSpeedXSlider->align(FL_ALIGN_TOP);
-//waveSpeedXSlider->type(FL_HOR_SLIDER);
-//waveSpeedXSlider->bounds(-1.0f, 1.0f);
-//waveSpeedXSlider->step(0.01);
-//waveSpeedXSlider->value(canvas->waveAmplitude);
-//waveSpeedXSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
-//
-//Fl_Box* waveSpeedYTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Speed Y");
-//waveSpeedYSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
-//waveSpeedYSlider->align(FL_ALIGN_TOP);
-//waveSpeedYSlider->type(FL_HOR_SLIDER);
-//waveSpeedYSlider->bounds(-1.0, 1.0f);
-//waveSpeedYSlider->step(0.01);
-//waveSpeedYSlider->value(canvas->waveAmplitude);
-//waveSpeedYSlider->callback(floatCB, (void*)(&(canvas->waveAmplitude)));
