@@ -54,6 +54,10 @@ public:
 	float waveSpeedX;
 	float waveSpeedY;
 
+    // for fog 
+    glm::vec3 fogColor;
+    float fogDensity;
+
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);
 	~MyGLCanvas();
 

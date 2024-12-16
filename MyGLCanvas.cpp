@@ -1,6 +1,7 @@
 #include "MyGLCanvas.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 
 //using namespace std;
 
@@ -15,12 +16,16 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 
 	viewAngle = 60;
 	clipNear = 0.01f;
-	clipFar = 20000.0f;
+	clipFar = 10000.0f;
 	lightAngle = 0.0f;
-	lightIntensity = 0.0f;
+	lightIntensity = 1.0f;
 	textureBlend = 1.0f;
 	repeatU = 5;
 	repeatV = 5;
+
+    // fog 
+    fogColor = glm::vec3(0.5f, 0.5f, 0.5f);  // light gray fog
+    fogDensity = 0.05f;  // adjust this to control fog intensity
 
 	waveSpeed = glm::vec2(0.1f, 0.05f);
 	waveAmplitude = 0.02f;
@@ -159,6 +164,10 @@ void MyGLCanvas::drawScene() {
 	GLint lightIntensityLoc = glGetUniformLocation(objectShaderProgram, "lightIntensity");
 	GLint viewPosLoc = glGetUniformLocation(objectShaderProgram, "viewPos");
 	GLint textureBlendLoc = glGetUniformLocation(objectShaderProgram, "textureBlend");
+    // for fog 
+    GLint fogColorLoc = glGetUniformLocation(objectShaderProgram, "fogColor");
+    GLint fogDensityLoc = glGetUniformLocation(objectShaderProgram, "fogDensity");
+
 	//GLint useDiffuseLoc = glGetUniformLocation(objectShaderProgram, "useDiffuse");
 	GLint repeatULoc = glGetUniformLocation(objectShaderProgram, "repeatU");
 	GLint repeatVLoc = glGetUniformLocation(objectShaderProgram, "repeatV");
@@ -192,6 +201,10 @@ void MyGLCanvas::drawScene() {
 	glUniform1f(waveAmplitudeLoc, waveAmplitude);
 	glUniform1f(waveFrequencyLoc, waveFrequency);
 	glUniform1f(lightIntensityLoc, lightIntensity);
+
+    // Pass fog uniforms
+    glUniform3fv(fogColorLoc, 1, glm::value_ptr(fogColor));
+    glUniform1f(fogDensityLoc, fogDensity);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
@@ -318,8 +331,9 @@ int MyGLCanvas::handle(int e) {
                 // Rotate world horizontally (only y-axis)
                 rotWorldVec.y += dx * 0.5f;  // Horizontal rotation only
 
-                // Normalize rotation to keep it within 0-360 degrees
-                rotWorldVec.y = fmod(rotWorldVec.y, 360.0f);
+                // Normalize rotation to keep it within 0-180 degrees
+                // rotWorldVec.y = fmod(rotWorldVec.y, 360.0f);
+                rotWorldVec.y = glm::clamp(rotWorldVec.y, -60.0f, 60.0f);
 
                 // Update last mouse position
                 lastX = Fl::event_x();
