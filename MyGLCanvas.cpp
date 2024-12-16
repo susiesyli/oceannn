@@ -53,7 +53,7 @@ void MyGLCanvas::initShaders() {
 
     // the original environment mapping line 
 	// myTextureManager->loadTexture("environMap", "./data/lol.ppm");
-	myTextureManager->loadTexture("objectTexture", "./data/oceanNormal.ppm");
+	myTextureManager->loadTexture("objectTexture", "./data/wave.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
