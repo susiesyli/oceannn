@@ -15,7 +15,6 @@ uniform float time;
 uniform vec2 waveSpeed;
 uniform float waveAmplitude;
 uniform float waveFrequency;
-//uniform sampler2D skyTexture;
 
 uniform vec3 fogColor;
 uniform float fogDensity;
@@ -32,12 +31,12 @@ vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 vec4 fade(vec4 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
 
 float cnoise(vec4 P){
-      vec4 Pi0 = floor(P); // Integer part for indexing
-      vec4 Pi1 = Pi0 + 1.0; // Integer part + 1
+      vec4 Pi0 = floor(P); 
+      vec4 Pi1 = Pi0 + 1.0;
       Pi0 = mod(Pi0, 289.0);
       Pi1 = mod(Pi1, 289.0);
-      vec4 Pf0 = fract(P); // Fractional part for interpolation
-      vec4 Pf1 = Pf0 - 1.0; // Fractional part - 1.0
+      vec4 Pf0 = fract(P); 
+      vec4 Pf1 = Pf0 - 1.0;
       vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
       vec4 iy = vec4(Pi0.yy, Pi1.yy);
       vec4 iz0 = vec4(Pi0.zzzz);
@@ -213,7 +212,7 @@ void main() {
     vec3 viewDir = normalize(viewPos - fragPosition);
     vec3 reflectDir = reflect(-viewDir, normalize(fragNormal));
     vec4 reflectedSkyColor = texture(environMap, reflectDir.xy * 0.5 + 0.5);
-    vec4 finalTexture = mix(objectColor, reflectedSkyColor, 0.45); // how much ocean reflects sky color
+    vec4 finalTexture = mix(objectColor, reflectedSkyColor, 0.45);
 
     // Lighting calculation
     vec3 adjustedNormal = normalize(fragNormal + vec3(
@@ -240,16 +239,16 @@ void main() {
 
     float beamRadius = 0.3;
     float beamFalloff = 4.0;
-    float beamIntensity = clamp(exp(-distanceToBeam * beamFalloff), 0.0, 0.35f);  // clamp to soften beam intensity 
+    float beamIntensity = clamp(exp(-distanceToBeam * beamFalloff), 0.0, 0.35f);
     beamIntensity *= smoothstep(0.0, beamRadius, beamRadius - distanceToBeam);
     
     float sunAngleFactor = 1.0 - clamp(lightPos.y / 10.0, 0.0, 1.0); 
     beamIntensity *= sunAngleFactor;
-    beamIntensity *= lightIntensity; // Scale with light intensity
+    beamIntensity *= lightIntensity; 
 
-    float sunVisibility = step(0.0, lightPos.y);  // 1.0 if sun is above horizon, 0 otherwise
+    float sunVisibility = step(0.0, lightPos.y);
     beamIntensity *= sunVisibility;
-    beamIntensity = clamp(beamIntensity, 0.0, 0.5); // last clamp 
+    beamIntensity = clamp(beamIntensity, 0.0, 0.5);
 
     vec3 beamLight = beamIntensity * vec3(1.0f, 1.0f, 1.0f);
 

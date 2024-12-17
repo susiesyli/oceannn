@@ -89,7 +89,7 @@ ppm::ppm(std::string _fileName){
 			  for (int i = 0; i < num; i++) {
 				  int value;
 				  ppmFile >> value;
-                  //std::cout << i << ": " << value << std::endl;
+                  std::cout << i << ": " << value << std::endl;
 				  color[i] = value;
 			  }
 		  }

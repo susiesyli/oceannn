@@ -27,26 +27,15 @@
 #include "ply.h"
 #include "gfxDefs.h"
 
-//struct rainParticle {
-//	ply* rainDrop;
-//	float speed;
-//	glm::mat4 modelMatrix;
-//};
-
 class MyGLCanvas : public Fl_Gl_Window {
 public:
-
-	// Length of our spline (i.e how many points do we randomly generate)
-
-
 	glm::vec3 eyePosition;
 	glm::vec3 rotVec;
 	glm::vec3 lookatPoint;
 	glm::vec3 lightPos;
 	glm::vec3 rotWorldVec;
 
-	float lightAngle; //used to control where the light is coming from
-	// add: light elevation angle 
+	float lightAngle;
 	float lightIntensity;
 	int viewAngle;
 	float clipNear;
@@ -55,18 +44,22 @@ public:
 	float textureBlend;
 	int repeatU;
 	int repeatV;
+
+	// waves
 	glm::vec2 waveSpeed;
 	float waveAmplitude;
 	float waveFrequency;
 	float waveSpeedX;
 	float waveSpeedY;
 
+	// fog
 	glm::vec3 fogColor;
 	float fogDensity;
 	float noiseScale;
 	float noiseSpeed;
 	bool useFog;
 
+	// rain
 	int numDrops;
     int numRainDrops;
 	float rainSpeed;
@@ -101,7 +94,6 @@ private:
 	ply* mySunPLY;
 	ply* myRainPLY;
 	ply* mySkyboxPLY;
-	ply* myCloudPLY;
 	ply* myStarPLY;
 	ply* myMoonPLY;
 
@@ -109,7 +101,7 @@ private:
 
 	bool firstTime;
 
-	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime; // for raindrops timestep 
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
 	std::vector<glm::vec3> rainDrops;

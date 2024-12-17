@@ -3,10 +3,8 @@
 in vec3 fragPosition;
 
 uniform sampler2D environMap;
-uniform vec3 lightPos;         // sun position
-uniform float lightIntensity;  // sun intensity
-// uniform vec3 sunColor;  
-
+uniform vec3 lightPos;
+uniform float lightIntensity;
 out vec4 outputColor;
 
 // spherical mapping for environment sphere
@@ -23,10 +21,10 @@ vec2 textureLocation(vec3 point) {
 vec3 calculateEnvironmentColor(vec3 lightDirection) {
     float elevation = clamp(normalize(lightDirection).y, -0.2, 1.0);
 
-    vec3 sunriseColor = vec3(1.0, 0.5, 0.3); // Warm orange-pink
-    vec3 dayColor = vec3(0.4, 0.7, 1.0);     // Soft blue
-    vec3 sunsetColor = vec3(0.8, 0.3, 0.2);  // Deep red-orange
-    vec3 nightColor = vec3(0.05, 0.05, 0.2); // Dark blue
+    vec3 sunriseColor = vec3(1.0, 0.5, 0.3);
+    vec3 dayColor = vec3(0.4, 0.7, 1.0);
+    vec3 sunsetColor = vec3(0.8, 0.3, 0.2);
+    vec3 nightColor = vec3(0.05, 0.05, 0.2);
 
     vec3 environmentColor;
     if (elevation > 0.2) {
@@ -58,11 +56,11 @@ void main()
     float sunAngle = max(dot(viewDir, sunDir), 0.0);
 
     float sunVisibility = step(0.0, sunDir.y);
-    float sunGlow = pow(sunAngle, 500.0) * lightIntensity; // falloff value 
-    vec3 sunContribution = vec3(sunGlow);   // ! change sun color later? 
+    float sunGlow = pow(sunAngle, 500.0) * lightIntensity;
+    vec3 sunContribution = vec3(sunGlow);
 
     // tune sky brightness based on light intensity and sun position
-    float skyBrightness = clamp(lightIntensity * (0.1 + 0.5 * sunDir.y), 0.0, 1.0); // darker as sun falls 
+    float skyBrightness = clamp(lightIntensity * (0.1 + 0.5 * sunDir.y), 0.0, 1.0);
 
     if (tintSky) {
         // Combine base sky color, tint, and sunlight contribution
