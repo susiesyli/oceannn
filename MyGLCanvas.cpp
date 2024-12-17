@@ -38,6 +38,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	numDrops = 2000;
     numRainDrops = 10000;
 	useFog = false;
+	useRain = false;
 
 	//useDiffuse = true;
 	firstTime = true;
@@ -517,53 +518,56 @@ void MyGLCanvas::drawScene() {
 
     // draw rain spheres
 	// Get shader program
-	glUseProgram(myShaderManager->getShaderProgram("rainShaders")->programID);
-	GLuint rainShaderProgram = myShaderManager->getShaderProgram("rainShaders")->programID;
-    // Variable binding for environment shader
-	GLint rainModelLoc = glGetUniformLocation(rainShaderProgram, "rainModel");
-	GLint rainViewLoc = glGetUniformLocation(rainShaderProgram, "rainView");
-	GLint rainProjLoc = glGetUniformLocation(rainShaderProgram, "rainProjection");
-	GLint rainLightIntensityLoc = glGetUniformLocation(rainShaderProgram, "lightIntensity");
-    GLint rainLightPosLoc = glGetUniformLocation(rainShaderProgram, "lightPos");
-    GLint deltaTimeLoc = glGetUniformLocation(rainShaderProgram, "deltaTime");
-    GLint fallSpeedLoc = glGetUniformLocation(rainShaderProgram, "fallSpeed");
-	glUniform3fv(rainLightPosLoc, 1, glm::value_ptr(lightPos));
+	if (useRain) {
+		glUseProgram(myShaderManager->getShaderProgram("rainShaders")->programID);
+		GLuint rainShaderProgram = myShaderManager->getShaderProgram("rainShaders")->programID;
+		// Variable binding for environment shader
+		GLint rainModelLoc = glGetUniformLocation(rainShaderProgram, "rainModel");
+		GLint rainViewLoc = glGetUniformLocation(rainShaderProgram, "rainView");
+		GLint rainProjLoc = glGetUniformLocation(rainShaderProgram, "rainProjection");
+		GLint rainLightIntensityLoc = glGetUniformLocation(rainShaderProgram, "lightIntensity");
+		GLint rainLightPosLoc = glGetUniformLocation(rainShaderProgram, "lightPos");
+		GLint deltaTimeLoc = glGetUniformLocation(rainShaderProgram, "deltaTime");
+		GLint fallSpeedLoc = glGetUniformLocation(rainShaderProgram, "fallSpeed");
+		glUniform3fv(rainLightPosLoc, 1, glm::value_ptr(lightPos));
 
-	glUniform1f(rainLightIntensityLoc, lightIntensity);
-    glUniform1f(deltaTimeLoc, delta);
+		glUniform1f(rainLightIntensityLoc, lightIntensity);
+		glUniform1f(deltaTimeLoc, delta);
 
-    for (int i = 0; i < numRainDrops; i++) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> random_offset(0, 1);
+		for (int i = 0; i < numRainDrops; i++) {
+			std::random_device rd;
+			std::mt19937 gen(rd());
+			std::uniform_real_distribution<float> random_offset(0, 1);
 
-        float fallSpeed = 2.0f + random_offset(gen) * 2;
-        float y = fallSpeed * delta;
-        actualRain[i].y -= y;  // Move down by fallSpeed * deltaTime
-        actualRain[i].x += y * (tan(actualRain[i].w) + tan(TO_RADIANS(noiseScale * 45)));
+			float fallSpeed = 2.0f + random_offset(gen) * 2;
+			float y = fallSpeed * delta;
+			actualRain[i].y -= y;  // Move down by fallSpeed * deltaTime
+			actualRain[i].x += y * (tan(actualRain[i].w) + tan(TO_RADIANS(noiseScale * 45)));
 
-        // Reset position if raindrop hits water level
-        float waterLevel = -0.1f;
-        if (actualRain[i].y <= waterLevel) {
-            actualRain[i].y = 5.0f;  // Reset to starting height
-            actualRain[i].x = static_cast<float>(rand() % 200 - 100) / 10.0f;  // Random x position
-            actualRain[i].z = static_cast<float>(rand() % 200 - 100) / 10.0f;  // Random z position
-        }
+			// Reset position if raindrop hits water level
+			float waterLevel = -0.1f;
+			if (actualRain[i].y <= waterLevel) {
+				actualRain[i].y = 5.0f;  // Reset to starting height
+				actualRain[i].x = static_cast<float>(rand() % 200 - 100) / 10.0f;  // Random x position
+				actualRain[i].z = static_cast<float>(rand() % 200 - 100) / 10.0f;  // Random z position
+			}
 
-        // Create sun model matrix (scaled up) 
-        glm::mat4 rainModelMatrix = glm::mat4(1.0f);
-        glm::vec3 thisRain = actualRain[i];
-        rainModelMatrix = glm::translate(rainModelMatrix, thisRain);
-        rainModelMatrix = glm::scale(rainModelMatrix, glm::vec3(0.003f, 0.003f, 0.003f));
-        
-        // Pass matrix uniforms for environment shader
-        glUniformMatrix4fv(rainModelLoc, 1, GL_FALSE, glm::value_ptr(rainModelMatrix));
-        glUniformMatrix4fv(rainViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        glUniformMatrix4fv(rainProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-        // glUniform1f(fallSpeedLoc, 10);
-        myRainPLY->renderVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
-    }
+			// Create sun model matrix (scaled up) 
+			glm::mat4 rainModelMatrix = glm::mat4(1.0f);
+			glm::vec3 thisRain = actualRain[i];
+			rainModelMatrix = glm::translate(rainModelMatrix, thisRain);
+			rainModelMatrix = glm::scale(rainModelMatrix, glm::vec3(0.003f, 0.003f, 0.003f));
 
+			// Pass matrix uniforms for environment shader
+			glUniformMatrix4fv(rainModelLoc, 1, GL_FALSE, glm::value_ptr(rainModelMatrix));
+			glUniformMatrix4fv(rainViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+			glUniformMatrix4fv(rainProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+			// glUniform1f(fallSpeedLoc, 10);
+			myRainPLY->renderVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
+		}
+
+	}
+	
 	//myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
 	//glUseProgram(myShaderManager->getShaderProgram("moonShaders")->programID);

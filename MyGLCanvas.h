@@ -70,6 +70,7 @@ public:
 	int numDrops;
     int numRainDrops;
 	float rainSpeed;
+	bool useRain;
 
 
 	MyGLCanvas(int x, int y, int w, int h, const char* l = 0);

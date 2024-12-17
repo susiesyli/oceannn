@@ -49,6 +49,9 @@ public:
     Fl_Slider* noiseSpeedSlider;
     Fl_Button* useFogButton;
 
+    Fl_Button* useRainButton;
+
+
     // shader button
     Fl_Button* reloadButton;
 
@@ -282,6 +285,20 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     waveFrequencySlider->callback(floatCB, (void*)(&(canvas->waveFrequency)));
 
     wavePack->end();
+
+    // Wave Controls Pack
+    Fl_Pack* rainPack = new Fl_Pack(0, 0, packRight->w(), 100, "Rain Controls");
+    rainPack->box(FL_DOWN_FRAME);
+    rainPack->labelfont(FL_BOLD);
+    rainPack->type(Fl_Pack::VERTICAL);
+    rainPack->spacing(10);
+    rainPack->color(FL_GRAY);
+    rainPack->begin();
+
+    useRainButton = new Fl_Check_Button(0, 100, rainPack->w() - 20, 20, "Use Rain");
+    useRainButton->color(FL_GRAY);
+    useRainButton->callback(intCB, (void*)(&(canvas->useRain)));
+    useRainButton->value(canvas->useRain);
 
     // Shader Controls Pack
     Fl_Pack* shaderPack = new Fl_Pack(0, 0, packRight->w(), 100, "Shader Controls");
