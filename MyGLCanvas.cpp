@@ -265,8 +265,9 @@ void MyGLCanvas::drawScene() {
 	GLint noiseScaleLoc = glGetUniformLocation(objectShaderProgram, "noiseScale");
 	GLint noiseSpeedLoc = glGetUniformLocation(objectShaderProgram, "noiseSpeed");
 	GLint useFogLoc = glGetUniformLocation(objectShaderProgram, "useFog");
+	GLint moonVisibleLoc = glGetUniformLocation(objectShaderProgram, "moonVisible");
 
-	// Pass matrix uniforms
+	// Pass matrix uniforms 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
@@ -280,10 +281,20 @@ void MyGLCanvas::drawScene() {
 	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), TO_RADIANS(lightAngle), glm::vec3(0.0, 0.0, 1.0));
 	lightPos = rotationMatrix * lightPos;
 
+	if (lightAngle < -90 || lightAngle > 90) {
+		lightPos = -lightPos;
+	}
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
+	
+	bool moonVisible = false;
+	if (lightAngle < -90 || lightAngle > 90) {
+		lightPos = -lightPos;
+		moonVisible = true;
+	}
 
 	glm::vec4 rotatedEye = glm::inverse(viewMatrix) * glm::vec4(eyePosition, 1.0f);
 	glm::vec3 transformedEye = glm::vec3(rotatedEye);
+
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(transformedEye));
 	glUniform1f(textureBlendLoc, textureBlend);
 	glUniform1f(repeatULoc, repeatU);
@@ -298,6 +309,7 @@ void MyGLCanvas::drawScene() {
 	glUniform1f(noiseScaleLoc, noiseScale);
 	glUniform1f(noiseSpeedLoc, noiseSpeed);
 	glUniform1i(useFogLoc, useFog);
+	glUniform1i(moonVisibleLoc, moonVisible);
 
 	// Pass texture units
 	GLint environMapLoc = glGetUniformLocation(objectShaderProgram, "environMap");
@@ -430,18 +442,18 @@ void MyGLCanvas::drawScene() {
 	GLint starLightIntensityLoc = glGetUniformLocation(starShaderProgram, "lightIntensity");
 	glUniform1f(starLightIntensityLoc, lightIntensity);
 
-    for (int i = 0; i < numDrops; i++) {
-        // Create sun model matrix (scaled up) 
-        glm::mat4 starModelMatrix = glm::mat4(1.0f);
-        glm::vec3 thisStar = rainDrops[i];
-        starModelMatrix = glm::translate(starModelMatrix, thisStar);
-        starModelMatrix = glm::scale(starModelMatrix, glm::vec3(0.0025f, 0.0025f, 0.0025f));
-        // Pass matrix uniforms for environment shader
-        glUniformMatrix4fv(starModelLoc, 1, GL_FALSE, glm::value_ptr(starModelMatrix));
-        glUniformMatrix4fv(starViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        glUniformMatrix4fv(starProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-        myStarPLY->renderVBO(myShaderManager->getShaderProgram("starShaders")->programID);
-    }
+    //for (int i = 0; i < numDrops; i++) {
+    //    // Create sun model matrix (scaled up) 
+    //    glm::mat4 starModelMatrix = glm::mat4(1.0f);
+    //    glm::vec3 thisStar = rainDrops[i];
+    //    starModelMatrix = glm::translate(starModelMatrix, thisStar);
+    //    starModelMatrix = glm::scale(starModelMatrix, glm::vec3(0.0025f, 0.0025f, 0.0025f));
+    //    // Pass matrix uniforms for environment shader
+    //    glUniformMatrix4fv(starModelLoc, 1, GL_FALSE, glm::value_ptr(starModelMatrix));
+    //    glUniformMatrix4fv(starViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    //    glUniformMatrix4fv(starProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+    //    myStarPLY->renderVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+    //}
 
 	//myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
@@ -456,7 +468,7 @@ void MyGLCanvas::drawScene() {
 
 	glm::mat4 moonModelMatrix = glm::mat4(1.0f);
 	moonModelMatrix = glm::translate(moonModelMatrix, glm::vec3(-lightPos));
-	moonModelMatrix = glm::scale(moonModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f));
+	moonModelMatrix = glm::scale(moonModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
 
 	glUniformMatrix4fv(moonModelLoc, 1, GL_FALSE, glm::value_ptr(moonModelMatrix));
 	glUniformMatrix4fv(moonViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
