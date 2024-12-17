@@ -224,7 +224,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     fogDensitySlider->color(FL_WHITE);
     fogDensitySlider->align(FL_ALIGN_TOP);
     fogDensitySlider->type(FL_HOR_SLIDER);
-    fogDensitySlider->bounds(0.0f, 0.75f);
+    fogDensitySlider->bounds(0.0f, 0.2f);
     fogDensitySlider->step(0.01f);
     fogDensitySlider->value(canvas->fogDensity);
     fogDensitySlider->callback(floatCB, (void*)(&(canvas->fogDensity)));
