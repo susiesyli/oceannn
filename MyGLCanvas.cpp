@@ -381,7 +381,7 @@ void MyGLCanvas::drawScene() {
 	GLint cloudModelLoc = glGetUniformLocation(cloudShaderProgram, "cloudModel");
 	GLint cloudViewLoc = glGetUniformLocation(cloudShaderProgram, "cloudView");
 	GLint cloudProjLoc = glGetUniformLocation(cloudShaderProgram, "cloudProjection");
-    
+
 	glm::mat4 cloudModelMatrix = glm::mat4(1.0f);
 	cloudModelMatrix = glm::translate(cloudModelMatrix, glm::vec3(lightPos.x+1, lightPos.y-0.25, lightPos.z));
 	cloudModelMatrix = glm::scale(cloudModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
@@ -389,10 +389,6 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(cloudModelLoc, 1, GL_FALSE, glm::value_ptr(cloudModelMatrix));
 	glUniformMatrix4fv(cloudViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(cloudProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-    glUniform3f(glGetUniformLocation(cloudShaderProgram, "u_TransparentColor"), 0.0, 0.0, 0.0); // Black
-    glUniform1f(glGetUniformLocation(cloudShaderProgram, "u_Threshold"), 0.04); // Threshold
-    GLint cloudTextureLoc = glGetUniformLocation(cloudShaderProgram, "cloudTexture");
-	glUniform1i(cloudTextureLoc, 0);  // GL_TEXTURE0
 
 	myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 }
