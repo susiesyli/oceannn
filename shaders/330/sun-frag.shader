@@ -15,6 +15,6 @@ void main()
     vec3 scaledSunColor = sunColor * lightIntensity;
     outputColor = vec4(scaledSunColor, lightIntensity);
     // Sample the environment map using spherical coordinates
-    //vec2 texCoord = textureLocation(fragPosition);
+    // vec2 texCoord = textureLocation(fragPosition);
     // outputColor = vec4(1.0f, 1.0f, 1.0f, 0.5f);
 }

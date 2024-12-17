@@ -34,7 +34,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	noiseScale = 0.1f;
 	noiseSpeed = 0.5f;
 
-	numDrops = 1000;
+	numDrops = 2000;
 	useFog = false;
 
 	//useDiffuse = true;
@@ -48,7 +48,8 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myEnvironmentPLY = new ply("./data/sphere.ply");
 	mySunPLY = new ply("./data/sphere.ply");
 	myRainPLY = new ply("./data/sphere.ply");
-	myCloudPLY = new ply("./data/sphere.ply");
+	myCloudPLY = new ply("./data/cloud3.ply");
+	myStarPLY = new ply("./data/sphere.ply");
 
 	initDrops();
 }
@@ -61,6 +62,7 @@ MyGLCanvas::~MyGLCanvas() {
 	// delete mySkyboxPLY;
 	delete mySunPLY;
 	delete myRainPLY;
+    delete myStarPLY;
 }
 
 void MyGLCanvas::initShaders() {
@@ -88,6 +90,10 @@ void MyGLCanvas::initShaders() {
 	myCloudPLY->buildArrays();
 	myCloudPLY->bindVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
+	myShaderManager->addShaderProgram("starShaders", "shaders/330/stars-vert.shader", "shaders/330/stars-frag.shader");
+	myCloudPLY->buildArrays();
+	myCloudPLY->bindVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+
 
 	// Load the textures for the skybox faces
 	// myTextureManager->loadTexture("skyboxLeft", "./data/left.ppm");
@@ -102,23 +108,28 @@ void MyGLCanvas::initShaders() {
 }
 
 void MyGLCanvas::initDrops() {
-	int grid_size = static_cast<int>(std::sqrt(numDrops)); // Assuming a square grid for simplicity
-	float step_size_x = 10.0f / (grid_size - 1);  // From -5 to 5, with grid_size steps
+	int grid_size = static_cast<int>(std::sqrt(numDrops)); // roughly a grid layout 
+	float step_size_x = 10.0f / (grid_size - 1);  // from -5 to 5 because our scene is -5 to 5 (a unit shape scaled by 10)
 	float step_size_z = 10.0f / (grid_size - 1);
+
+    // Random number generator for small random offsets
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> random_offset(-step_size_x / 2.0f, step_size_x / 2.0f);
 
 	// Generate the coordinates uniformly across the grid
 	for (int i = 0; i < grid_size; i++) {
 		for (int j = 0; j < grid_size; j++) {
-			float x = -5 + i * step_size_x;  // x coordinate from -5 to 5
-			float z = -5 + j * step_size_z;  // z coordinate from -5 to 5
-			glm::vec2 dropLocation = glm::vec2(x, z);
+            float base_x = -5 + i * step_size_x;
+            float base_z = -5 + j * step_size_z;
+
+            // Add random offset to base positions
+            float x = base_x + random_offset(gen) * 2;
+            float z = base_z + random_offset(gen) * 2;
+            float y = 0.75 + random_offset(gen) * 10;
+			glm::vec3 dropLocation = glm::vec3(x, y, z);
 			rainDrops.emplace_back(dropLocation);
 		}
-	}
-
-	for (const glm::vec2& position : rainDrops) {
-		glm::vec3 translation(position.x, 0.1f, position.y); // Use 2D position for x and z
-		rainTranslations.push_back(translation);
 	}
 }
 
@@ -263,7 +274,6 @@ void MyGLCanvas::drawScene() {
 
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
 
-
 	glm::vec4 rotatedEye = glm::inverse(viewMatrix) * glm::vec4(eyePosition, 1.0f);
 	glm::vec3 transformedEye = glm::vec3(rotatedEye);
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(transformedEye));
@@ -379,6 +389,7 @@ void MyGLCanvas::drawScene() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // draw cloud 
 	glUseProgram(myShaderManager->getShaderProgram("cloudShaders")->programID);
 	GLuint cloudShaderProgram = myShaderManager->getShaderProgram("cloudShaders")->programID;
 
@@ -386,7 +397,6 @@ void MyGLCanvas::drawScene() {
 	GLint cloudViewLoc = glGetUniformLocation(cloudShaderProgram, "cloudView");
 	GLint cloudProjLoc = glGetUniformLocation(cloudShaderProgram, "cloudProjection");
 	GLint cloudTimeLoc = glGetUniformLocation(cloudShaderProgram, "time");
-
 
 	glm::mat4 cloudModelMatrix = glm::mat4(1.0f);
 	cloudModelMatrix = glm::translate(cloudModelMatrix, glm::vec3(lightPos.x+1, lightPos.y-0.25, lightPos.z));
@@ -396,9 +406,34 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(cloudViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(cloudProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	glUniform1f(cloudTimeLoc, totalTime);
+	// myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
+    // draw star spheres
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
+	// Get shader program
+	glUseProgram(myShaderManager->getShaderProgram("starShaders")->programID);
+	GLuint starShaderProgram = myShaderManager->getShaderProgram("starShaders")->programID;
+    // Variable binding for environment shader
+	GLint starModelLoc = glGetUniformLocation(starShaderProgram, "starModel");
+	GLint starViewLoc = glGetUniformLocation(starShaderProgram, "starView");
+	GLint starProjLoc = glGetUniformLocation(starShaderProgram, "starProjection");
+	GLint starLightIntensityLoc = glGetUniformLocation(starShaderProgram, "lightIntensity");
+	glUniform1f(starLightIntensityLoc, lightIntensity);
+
+    for (int i = 0; i < numDrops; i++) {
+        // Create sun model matrix (scaled up) 
+        glm::mat4 starModelMatrix = glm::mat4(1.0f);
+        glm::vec3 thisStar = rainDrops[i];
+        starModelMatrix = glm::translate(starModelMatrix, thisStar);
+        starModelMatrix = glm::scale(starModelMatrix, glm::vec3(0.0025f, 0.0025f, 0.0025f));
+        // Pass matrix uniforms for environment shader
+        glUniformMatrix4fv(starModelLoc, 1, GL_FALSE, glm::value_ptr(starModelMatrix));
+        glUniformMatrix4fv(starViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(starProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+        mySunPLY->renderVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+    }
 }
 
 void MyGLCanvas::updateCamera(int width, int height) {
@@ -494,6 +529,8 @@ void MyGLCanvas::reloadShaders() {
 	myShaderManager->addShaderProgram("cloudShaders", "shaders/330/cloud-vert.shader", "shaders/330/cloud-frag.shader");
 	myRainPLY->bindVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
+	myShaderManager->addShaderProgram("starShaders", "shaders/330/stars-vert.shader", "shaders/330/stars-frag.shader");
+	myRainPLY->bindVBO(myShaderManager->getShaderProgram("starShaders")->programID);
 
 	invalidate();
 }

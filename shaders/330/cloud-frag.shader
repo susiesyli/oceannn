@@ -146,19 +146,20 @@ float cnoise(vec4 P){
 }
 
 void main() {
-    vec4 noiseInput = vec4(cloudFragPosition * 0.5, time * 0.1);
+    outputColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
+    // vec4 noiseInput = vec4(cloudFragPosition * 0.5, time * 0.1);
     
-    float noiseValue = cnoise(noiseInput);
+    // float noiseValue = cnoise(noiseInput);
     
-    noiseValue = (noiseValue + 1.0) * 0.5;
+    // noiseValue = (noiseValue + 1.0) * 0.5;
     
-    float threshold = 0.5;
-    float alpha = smoothstep(threshold, threshold + 0.1, noiseValue);
+    // float threshold = 0.5;
+    // float alpha = smoothstep(threshold, threshold + 0.1, noiseValue);
 
-    vec3 cloudColor = vec3(1.0);
-    outputColor = vec4(cloudColor, alpha);
+    // vec3 cloudColor = vec3(1.0);
+    // outputColor = vec4(cloudColor, alpha);
 
-    if (alpha < 0.01) {
-        discard;
-    }
+    // if (alpha < 0.01) {
+    //     discard;
+    // }
 }

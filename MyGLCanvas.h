@@ -98,6 +98,7 @@ private:
 	ply* myRainPLY;
 	ply* mySkyboxPLY;
 	ply* myCloudPLY;
+	ply* myStarPLY;
 
 	glm::mat4 perspectiveMatrix;
 
@@ -105,7 +106,7 @@ private:
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
-	std::vector<glm::vec2> rainDrops;
+	std::vector<glm::vec3> rainDrops;
 	std::vector<glm::vec3> rainTranslations;
 };
 
