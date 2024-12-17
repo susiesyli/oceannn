@@ -148,7 +148,6 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     packLeft->box(FL_DOWN_FRAME);
     packLeft->type(Fl_Pack::VERTICAL);
     packLeft->spacing(20);
-    packLeft->color(FL_WHITE);
     packLeft->begin();
 
     // Camera Controls Pack
@@ -157,13 +156,10 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     cameraPack->labelfont(FL_BOLD);
     cameraPack->type(Fl_Pack::VERTICAL);
     cameraPack->spacing(10);
-    cameraPack->color(FL_WHITE);
     cameraPack->begin();
 
     Fl_Box* rotYTextbox = new Fl_Box(0, 0, cameraPack->w(), 20, "Rotate Y");
-    rotYTextbox->color(FL_WHITE); 
     rotYSlider = new Fl_Value_Slider(0, 0, cameraPack->w(), 20, "");
-    rotYSlider->color(FL_WHITE);  
     rotYSlider->align(FL_ALIGN_TOP);
     rotYSlider->type(FL_HOR_SLIDER);
     rotYSlider->bounds(-359, 359);
@@ -179,27 +175,22 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     lightPack->labelfont(FL_BOLD);
     lightPack->type(Fl_Pack::VERTICAL);
     lightPack->spacing(10);
-    lightPack->color(FL_WHITE);
     lightPack->begin();
 
     Fl_Box* lightAngleTextbox = new Fl_Box(0, 0, lightPack->w(), 20, "Light Angle");
-    lightAngleTextbox->color(FL_WHITE);
     lightAngleSlider = new Fl_Value_Slider(0, 0, lightPack->w(), 20, "");
-    lightAngleSlider->color(FL_WHITE);  
     lightAngleSlider->align(FL_ALIGN_TOP);
     lightAngleSlider->type(FL_HOR_SLIDER);
-    lightAngleSlider->bounds(-100, 100);
+    lightAngleSlider->bounds(-120, 120);
     lightAngleSlider->step(1);
     lightAngleSlider->value(canvas->lightAngle);
     lightAngleSlider->callback(floatCB, (void*)(&(canvas->lightAngle)));
 
     Fl_Box* lightIntensityTextbox = new Fl_Box(0, 0, lightPack->w(), 20, "Light Intensity");
-    lightIntensityTextbox->color(FL_WHITE);  
     lightIntensitySlider = new Fl_Value_Slider(0, 0, lightPack->w(), 20, "");
-    lightIntensitySlider->color(FL_WHITE);  
     lightIntensitySlider->align(FL_ALIGN_TOP);
     lightIntensitySlider->type(FL_HOR_SLIDER);
-    lightIntensitySlider->bounds(0, 2.5f);
+    lightIntensitySlider->bounds(0, 2.0f);
     lightIntensitySlider->step(0.01);
     lightIntensitySlider->value(canvas->lightIntensity);
     lightIntensitySlider->callback(floatCB, (void*)(&(canvas->lightIntensity)));
@@ -211,27 +202,23 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     fogPack->labelfont(FL_BOLD);
     fogPack->type(Fl_Pack::VERTICAL);
     fogPack->spacing(10);
-    fogPack->color(FL_WHITE);
     fogPack->begin();
 
     useFogButton = new Fl_Check_Button(0, 100, fogPack->w() - 20, 20, "Use Fog");
-    useFogButton->color(FL_WHITE);  
     useFogButton->callback(intCB, (void*)(&(canvas->useFog)));
     useFogButton->value(canvas->useFog);
 
     Fl_Box* fogDensityTextbox = new Fl_Box(0, 0, fogPack->w(), 20, "Fog Density");
     fogDensitySlider = new Fl_Value_Slider(0, 0, fogPack->w(), 20, "");
-    fogDensitySlider->color(FL_WHITE);  
     fogDensitySlider->align(FL_ALIGN_TOP);
     fogDensitySlider->type(FL_HOR_SLIDER);
-    fogDensitySlider->bounds(0.0f, 0.75f);
+    fogDensitySlider->bounds(0.0f, 1.0f);
     fogDensitySlider->step(0.01f);
     fogDensitySlider->value(canvas->fogDensity);
     fogDensitySlider->callback(floatCB, (void*)(&(canvas->fogDensity)));
 
     Fl_Box* noiseScaleTextbox = new Fl_Box(0, 0, fogPack->w(), 20, "Wind");
     noiseScaleSlider = new Fl_Value_Slider(0, 0, fogPack->w(), 20, "");
-    noiseScaleSlider->color(FL_WHITE);  
     noiseScaleSlider->align(FL_ALIGN_TOP);
     noiseScaleSlider->type(FL_HOR_SLIDER);
     noiseScaleSlider->bounds(0.0f, 1.0f);
@@ -249,7 +236,6 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     packRight->box(FL_DOWN_FRAME);
     packRight->type(Fl_Pack::VERTICAL);
     packRight->spacing(20);
-    packRight->color(FL_WHITE);
     packRight->begin();
 
     // Wave Controls Pack
@@ -258,12 +244,10 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     wavePack->labelfont(FL_BOLD);
     wavePack->type(Fl_Pack::VERTICAL);
     wavePack->spacing(10);
-    wavePack->color(FL_WHITE);
     wavePack->begin();
 
     Fl_Box* waveAmplitudeTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Amplitude");
     waveAmplitudeSlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
-    waveAmplitudeSlider->color(FL_WHITE);
     waveAmplitudeSlider->align(FL_ALIGN_TOP);
     waveAmplitudeSlider->type(FL_HOR_SLIDER);
     waveAmplitudeSlider->bounds(0, 0.1f);
@@ -273,7 +257,6 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 
     Fl_Box* waveFrequencyTextbox = new Fl_Box(0, 0, wavePack->w(), 20, "Wave Frequency");
     waveFrequencySlider = new Fl_Value_Slider(0, 0, wavePack->w(), 20, "");
-    waveFrequencySlider->color(FL_WHITE);
     waveFrequencySlider->align(FL_ALIGN_TOP);
     waveFrequencySlider->type(FL_HOR_SLIDER);
     waveFrequencySlider->bounds(0.5, 5.0f);
@@ -289,11 +272,9 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     shaderPack->labelfont(FL_BOLD);
     shaderPack->type(Fl_Pack::VERTICAL);
     shaderPack->spacing(10);
-    shaderPack->color(FL_WHITE);
     shaderPack->begin();
 
     reloadButton = new Fl_Button(0, 0, shaderPack->w(), 30, "Reload Shaders");
-    reloadButton->color(FL_WHITE);
     reloadButton->callback(reloadCB, (void*)this);
 
     shaderPack->end();
@@ -306,7 +287,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
 
 /**************************************** main() ********************/
 int main(int argc, char** argv) {
-	win = new MyAppWindow(850*1.5, 475*1.5, "Ocean Simulation");
+	win = new MyAppWindow(850, 475, "Environment Mapping");
 	win->resizable(win);
 	Fl::add_idle(MyAppWindow::idleCB);
 	win->show();

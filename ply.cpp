@@ -615,6 +615,7 @@ void ply::bindVBO(unsigned int programID) {
 	// Now we finally copy data into the buffer object
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexCount * 3, vertexArray, GL_STATIC_DRAW);
 
+
 	//tell openGL to generate a new VBO object
 	glGenBuffers(1, &indicesVBO_id);
 	// Transfer the data from indices to a VBO indicesVBO_id
@@ -627,6 +628,7 @@ void ply::bindVBO(unsigned int programID) {
 	glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	// Enable the attribute
 	glEnableVertexAttribArray(position_attribute);
+
 
 	//Repeat the process as building a vertexVBO, but this time for the normals
 	glGenBuffers(1, &normalVBO_id);
