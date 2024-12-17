@@ -64,8 +64,9 @@ MyGLCanvas::~MyGLCanvas() {
 }
 
 void MyGLCanvas::initShaders() {
-	myTextureManager->loadTexture("environMap", "./data/sky356.ppm");
+	myTextureManager->loadTexture("environMap", "./data/sky3.ppm");
 	myTextureManager->loadTexture("objectTexture", "./data/wave.ppm");
+    myTextureManager->loadTexture("cloudTexture", "./data/cloud.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -79,9 +80,9 @@ void MyGLCanvas::initShaders() {
 	mySunPLY->buildArrays();
 	mySunPLY->bindVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 
-	myShaderManager->addShaderProgram("rainShaders", "shaders/330/rain-vert.shader", "shaders/330/rain-frag.shader");
-	myRainPLY->buildArrays();
-	myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
+	// myShaderManager->addShaderProgram("rainShaders", "shaders/330/rain-vert.shader", "shaders/330/rain-frag.shader");
+	// myRainPLY->buildArrays();
+	// myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
 
 	myShaderManager->addShaderProgram("cloudShaders", "shaders/330/cloud-vert.shader", "shaders/330/cloud-frag.shader");
 	myCloudPLY->buildArrays();
@@ -372,7 +373,7 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-	//mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 
 	glUseProgram(myShaderManager->getShaderProgram("cloudShaders")->programID);
 	GLuint cloudShaderProgram = myShaderManager->getShaderProgram("cloudShaders")->programID;
@@ -380,14 +381,18 @@ void MyGLCanvas::drawScene() {
 	GLint cloudModelLoc = glGetUniformLocation(cloudShaderProgram, "cloudModel");
 	GLint cloudViewLoc = glGetUniformLocation(cloudShaderProgram, "cloudView");
 	GLint cloudProjLoc = glGetUniformLocation(cloudShaderProgram, "cloudProjection");
-
+    
 	glm::mat4 cloudModelMatrix = glm::mat4(1.0f);
-	cloudModelMatrix = glm::translate(cloudModelMatrix, glm::vec3(lightPos));
-	cloudModelMatrix = glm::scale(cloudModelMatrix, glm::vec3(1.5f, 0.25f, 5.0f));
+	cloudModelMatrix = glm::translate(cloudModelMatrix, glm::vec3(lightPos.x+1, lightPos.y-0.25, lightPos.z));
+	cloudModelMatrix = glm::scale(cloudModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
 
 	glUniformMatrix4fv(cloudModelLoc, 1, GL_FALSE, glm::value_ptr(cloudModelMatrix));
 	glUniformMatrix4fv(cloudViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(cloudProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+    glUniform3f(glGetUniformLocation(cloudShaderProgram, "u_TransparentColor"), 0.0, 0.0, 0.0); // Black
+    glUniform1f(glGetUniformLocation(cloudShaderProgram, "u_Threshold"), 0.04); // Threshold
+    GLint cloudTextureLoc = glGetUniformLocation(cloudShaderProgram, "cloudTexture");
+	glUniform1i(cloudTextureLoc, 0);  // GL_TEXTURE0
 
 	myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 }
@@ -482,8 +487,8 @@ void MyGLCanvas::reloadShaders() {
 	myShaderManager->addShaderProgram("rainShaders", "shaders/330/rain-vert.shader", "shaders/330/rain-frag.shader");
 	myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
 
-	myShaderManager->addShaderProgram("skyboxShaders", "shaders/330/skybox-vert.shader", "shaders/330/skybox-frag.shader");
-	myRainPLY->bindVBO(myShaderManager->getShaderProgram("skyboxShaders")->programID);
+	myShaderManager->addShaderProgram("cloudShaders", "shaders/330/cloud-vert.shader", "shaders/330/cloud-frag.shader");
+	myRainPLY->bindVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
 
 	invalidate();
