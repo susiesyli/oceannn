@@ -68,6 +68,7 @@ public:
 	bool useFog;
 
 	int numDrops;
+    int numRainDrops;
 	float rainSpeed;
 
 
@@ -85,6 +86,8 @@ private:
 
 	void initShaders();
 	void initDrops();
+    void initRain();
+    void initRipples();
 
 	int handle(int);
 	void resize(int x, int y, int w, int h);
@@ -105,10 +108,12 @@ private:
 
 	bool firstTime;
 
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime; // for raindrops timestep 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
 	std::vector<glm::vec3> rainDrops;
-	std::vector<glm::vec3> rainTranslations;
+	std::vector<glm::vec4> actualRain;
+    std::vector<glm::vec2> ripples;
 };
 
 #endif // !MYGLCANVAS_H

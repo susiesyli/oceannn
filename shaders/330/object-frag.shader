@@ -23,7 +23,7 @@ uniform float noiseScale;
 uniform float noiseSpeed;
 uniform bool useFog;
 
-uniform bool moonVisible;
+uniform vec2 drops[10000];
 
 out vec4 outputColor;
 
@@ -252,11 +252,6 @@ void main() {
     beamIntensity = clamp(beamIntensity, 0.0, 0.5); // last clamp 
 
     vec3 beamLight = beamIntensity * vec3(1.0f, 1.0f, 1.0f);
-
-    if (moonVisible) {
-        beamLight /= 4;
-        diffuseLight /= 2;
-    }
 
     // Combine lighting effects
     vec3 lightingEffect = diffuseLight + beamLight;

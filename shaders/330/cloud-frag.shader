@@ -146,7 +146,6 @@ float cnoise(vec4 P){
 }
 
 void main() {
-<<<<<<< Updated upstream
     outputColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
     // vec4 noiseInput = vec4(cloudFragPosition * 0.5, time * 0.1);
     
@@ -163,37 +162,36 @@ void main() {
     // if (alpha < 0.01) {
     //     discard;
     // }
-=======
-    // Sphere radius to constrain the clouds
-    float sphereRadius = 1.0;
 
-    // Compute distance from fragment position to sphere center
-    float distanceToCenter = length(cloudFragPosition);
+    // // Sphere radius to constrain the clouds
+    // float sphereRadius = 1.0;
 
-    // Sphere mask to ensure clouds stay within the sphere
-    float sphereMask = smoothstep(sphereRadius, sphereRadius - 0.1, distanceToCenter);
+    // // Compute distance from fragment position to sphere center
+    // float distanceToCenter = length(cloudFragPosition);
 
-    // Noise applied to the bounding cube (defined by cloudFragPosition)
-    vec3 cubeEdge = abs(cloudFragPosition); // Get absolute position to find proximity to edges
-    float maxEdge = max(max(cubeEdge.x, cubeEdge.y), cubeEdge.z); // Distance to the cube boundary
-    float noiseFactor = cnoise(vec4(cloudFragPosition * 3.0, 0.0)); // 4D noise without animation
+    // // Sphere mask to ensure clouds stay within the sphere
+    // float sphereMask = smoothstep(sphereRadius, sphereRadius - 0.1, distanceToCenter);
 
-    // Map noise to 0.0 to 1.0 range
-    noiseFactor = (noiseFactor + 1.0) * 0.5;
+    // // Noise applied to the bounding cube (defined by cloudFragPosition)
+    // vec3 cubeEdge = abs(cloudFragPosition); // Get absolute position to find proximity to edges
+    // float maxEdge = max(max(cubeEdge.x, cubeEdge.y), cubeEdge.z); // Distance to the cube boundary
+    // float noiseFactor = cnoise(vec4(cloudFragPosition * 3.0, 0.0)); // 4D noise without animation
 
-    // Apply noise only to the outer cube edges, creating a transition
-    float edgeMask = smoothstep(0.8, 1.0, maxEdge) * noiseFactor;
+    // // Map noise to 0.0 to 1.0 range
+    // noiseFactor = (noiseFactor + 1.0) * 0.5;
 
-    // Combine masks: sphere confines the cloud, edges get noise
-    float alpha = (1.0 - sphereMask) * edgeMask;
+    // // Apply noise only to the outer cube edges, creating a transition
+    // float edgeMask = smoothstep(0.8, 1.0, maxEdge) * noiseFactor;
 
-    // Set cloud color
-    vec3 cloudColor = vec3(1.0); // White clouds
-    outputColor = vec4(cloudColor, alpha);
+    // // Combine masks: sphere confines the cloud, edges get noise
+    // float alpha = (1.0 - sphereMask) * edgeMask;
 
-    // Discard fragments with very low alpha
-    if (alpha < 0.01) {
-        discard;
-    }
->>>>>>> Stashed changes
+    // // Set cloud color
+    // vec3 cloudColor = vec3(1.0); // White clouds
+    // outputColor = vec4(cloudColor, alpha);
+
+    // // Discard fragments with very low alpha
+    // if (alpha < 0.01) {
+    //     discard;
+    // }
 }
