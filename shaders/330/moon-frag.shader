@@ -7,20 +7,7 @@ uniform sampler2D moonMap; // The moon's texture map
 
 out vec4 outputColor;
 
-vec2 textureLocation(vec3 point) {
-    vec3 normalizedPoint = normalize(point);
-
-    float u = 0.5 + atan(normalizedPoint.z, normalizedPoint.x) / (2.0 * 3.14159265359);
-    float v = 0.5 - asin(normalizedPoint.y) / 3.14159265359;
-
-    return vec2(u, v);
-}
-
 void main()
 {
-    vec2 texCoords = textureLocation(fragPosition);
-
-    vec4 textureColor = texture(moonMap, texCoords);
-
-    outputColor = textureColor;
+    outputColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 }

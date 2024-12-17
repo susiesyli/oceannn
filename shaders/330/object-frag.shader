@@ -23,6 +23,8 @@ uniform float noiseScale;
 uniform float noiseSpeed;
 uniform bool useFog;
 
+uniform bool moonVisible;
+
 out vec4 outputColor;
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
@@ -250,6 +252,11 @@ void main() {
     beamIntensity = clamp(beamIntensity, 0.0, 0.5); // last clamp 
 
     vec3 beamLight = beamIntensity * vec3(1.0f, 1.0f, 1.0f);
+
+    if (moonVisible) {
+        beamLight /= 4;
+        diffuseLight /= 2;
+    }
 
     // Combine lighting effects
     vec3 lightingEffect = diffuseLight + beamLight;
