@@ -96,6 +96,7 @@ private:
 	ply* myEnvironmentPLY;
 	ply* mySunPLY;
 	ply* myRainPLY;
+    ply* mySkyboxPLY;
 
 	glm::mat4 perspectiveMatrix;
 
@@ -104,6 +105,7 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
 	std::vector<glm::vec2> rainDrops;
+    std::vector<glm::vec3> rainTranslations;
 };
 
 #endif // !MYGLCANVAS_H

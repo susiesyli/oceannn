@@ -1,21 +1,77 @@
 #version 330
 
-in vec3 fragDirection; // texture coordinate 
-uniform samplerCube cubeMap; // take in a cube map (skybox)
+in vec3 fragPosition;
 
-// in vec3 fragPosition;
-// uniform sampler2D environMap;
+uniform sampler2D environMap;
+uniform vec3 lightPos;         // sun position
+uniform float lightIntensity;  // sun intensity
+// uniform vec3 sunColor;  
 
-out vec4 outputColor; // same as the old env map 
+out vec4 outputColor;
+
+// spherical mapping for environment sphere
+vec2 textureLocation(vec3 point) {
+    vec3 norm = normalize(point);
+    // convert to spherical coordinates
+    float phi = -atan(norm.z, -norm.x);
+    float theta = acos(norm.y);
+    // map to texture coordinates
+    vec2 coord = vec2(0.5 + phi / (2.0 * 3.14159), theta / 3.14159);
+    return coord;
+}
+
+vec3 calculateEnvironmentColor(vec3 lightDirection) {
+    float elevation = clamp(normalize(lightDirection).y, -0.2, 1.0);
+
+    vec3 sunriseColor = vec3(1.0, 0.5, 0.3); // Warm orange-pink
+    vec3 dayColor = vec3(0.4, 0.7, 1.0);     // Soft blue
+    vec3 sunsetColor = vec3(0.8, 0.3, 0.2);  // Deep red-orange
+    vec3 nightColor = vec3(0.05, 0.05, 0.2); // Dark blue
+
+    vec3 environmentColor;
+    if (elevation > 0.2) {
+        // Day to sunrise/sunset
+        float t = smoothstep(0.2, 0.5, elevation);
+        environmentColor = mix(sunriseColor, dayColor, t);
+    } else if (elevation > -0.1) {
+        // Sunset to night
+        float t = smoothstep(-0.1, 0.2, elevation);
+        environmentColor = mix(sunsetColor, nightColor, t);
+    } else {
+        // Nighttime
+        environmentColor = nightColor;
+    }
+
+    return environmentColor;
+}
 
 void main()
 {	
-    // Normalize the direction vector and sample the cube map
-    vec3 direction = normalize(fragDirection);
-    outputColor = texture(cubeMap, direction);
-    // outputColor = vec4(1.0, 0.0, 0.0, 1.0); // Red for skybox
+    bool tintSky = false;
+    // environment map - texture etc 
+    vec2 texCoord = textureLocation(fragPosition);
+    vec3 baseSkyColor = texture(environMap, texCoord).rgb;
 
-    // // Sample the environment map using spherical coordinates
-    // vec2 texCoord = textureLocation(fragPosition);
-    // outputColor = texture(environMap, texCoord);
+    // find sunlight contributino 
+    vec3 viewDir = normalize(fragPosition); 
+    vec3 sunDir = normalize(lightPos);   
+    float sunAngle = max(dot(viewDir, sunDir), 0.0);
+
+    float sunVisibility = step(0.0, sunDir.y);
+    float sunGlow = pow(sunAngle, 500.0) * lightIntensity; // falloff value 
+    vec3 sunContribution = vec3(sunGlow);   // ! change sun color later? 
+
+    // tune sky brightness based on light intensity and sun position
+    float skyBrightness = clamp(lightIntensity * (0.1 + 0.5 * sunDir.y), 0.0, 1.0); // darker as sun falls 
+
+    if (tintSky) {
+        // Combine base sky color, tint, and sunlight contribution
+        vec3 skyTint = calculateEnvironmentColor(lightPos);
+        vec3 tintedSkyColor = mix(baseSkyColor, skyTint, 0.15);
+        vec3 finalSkyColor = tintedSkyColor * skyBrightness + sunContribution;
+        outputColor = vec4(finalSkyColor, 1.0);
+    } else {
+        vec3 finalSkyColor = baseSkyColor * skyBrightness + sunContribution;
+        outputColor = vec4(finalSkyColor, 1.0);
+    }
 }
