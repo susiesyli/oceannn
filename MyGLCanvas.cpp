@@ -213,7 +213,8 @@ void MyGLCanvas::drawScene() {
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
-
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("cloudTexture"));
 	//first draw the object sphere
 	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
 
@@ -375,6 +376,9 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glUseProgram(myShaderManager->getShaderProgram("cloudShaders")->programID);
 	GLuint cloudShaderProgram = myShaderManager->getShaderProgram("cloudShaders")->programID;
 
@@ -389,6 +393,13 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(cloudModelLoc, 1, GL_FALSE, glm::value_ptr(cloudModelMatrix));
 	glUniformMatrix4fv(cloudViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(cloudProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+
+	GLint thresholdLoc = glGetUniformLocation(cloudShaderProgram, "u_Threshold");
+	glUniform1f(thresholdLoc, 0.8f); // Adjust threshold as needed
+
+
+	GLint cloudMapLocEnv = glGetUniformLocation(cloudShaderProgram, "cloudTexture");
+	glUniform1i(cloudMapLocEnv, 2);
 
 	myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 }
