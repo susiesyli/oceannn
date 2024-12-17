@@ -46,7 +46,7 @@ public:
 	glm::vec3 rotWorldVec;
 
 	float lightAngle; //used to control where the light is coming from
-    // add: light elevation angle 
+	// add: light elevation angle 
 	float lightIntensity;
 	int viewAngle;
 	float clipNear;
@@ -67,7 +67,7 @@ public:
 	float noiseSpeed;
 	bool useFog;
 
-	int numDrops; 
+	int numDrops;
 	float rainSpeed;
 
 
@@ -96,6 +96,7 @@ private:
 	ply* myEnvironmentPLY;
 	ply* mySunPLY;
 	ply* myRainPLY;
+	ply* mySkyboxPLY;
 
 	glm::mat4 perspectiveMatrix;
 
@@ -104,6 +105,7 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
 	std::vector<glm::vec2> rainDrops;
+	std::vector<glm::vec3> rainTranslations;
 };
 
 #endif // !MYGLCANVAS_H
