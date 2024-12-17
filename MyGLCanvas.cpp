@@ -64,7 +64,7 @@ MyGLCanvas::~MyGLCanvas() {
 }
 
 void MyGLCanvas::initShaders() {
-	myTextureManager->loadTexture("environMap", "./data/sky3.ppm");
+	myTextureManager->loadTexture("environMap", "./data/sky356.ppm");
 	myTextureManager->loadTexture("objectTexture", "./data/wave.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
@@ -372,7 +372,7 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunModelLoc, 1, GL_FALSE, glm::value_ptr(sunModelMatrix));
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+	//mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
 
 	glUseProgram(myShaderManager->getShaderProgram("cloudShaders")->programID);
 	GLuint cloudShaderProgram = myShaderManager->getShaderProgram("cloudShaders")->programID;
