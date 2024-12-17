@@ -99,6 +99,7 @@ private:
 	ply* mySkyboxPLY;
 	ply* myCloudPLY;
 	ply* myStarPLY;
+	ply* myMoonPLY;
 
 	glm::mat4 perspectiveMatrix;
 

@@ -50,6 +50,8 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myRainPLY = new ply("./data/sphere.ply");
 	myCloudPLY = new ply("./data/cloud3.ply");
 	myStarPLY = new ply("./data/sphere.ply");
+	myCloudPLY = new ply("./data/sphere.ply");
+	myMoonPLY = new ply("./data/sphere.ply");
 
 	initDrops();
 }
@@ -66,9 +68,10 @@ MyGLCanvas::~MyGLCanvas() {
 }
 
 void MyGLCanvas::initShaders() {
-	myTextureManager->loadTexture("environMap", "./data/sky3.ppm");
-	myTextureManager->loadTexture("objectTexture", "./data/wave.ppm");
+	myTextureManager->loadTexture("environMap", "./data/new_skyyy-2.ppm");
+	myTextureManager->loadTexture("objectTexture", "./data/waveey.ppm");
     myTextureManager->loadTexture("cloudTexture", "./data/cloud.ppm");
+	myTextureManager->loadTexture("moonTexture", "./data/moon.ppm");
 
 	myShaderManager->addShaderProgram("objectShaders", "shaders/330/object-vert.shader", "shaders/330/object-frag.shader");
 	myObjectPLY->buildArrays();
@@ -93,6 +96,9 @@ void MyGLCanvas::initShaders() {
 	myShaderManager->addShaderProgram("starShaders", "shaders/330/stars-vert.shader", "shaders/330/stars-frag.shader");
 	myCloudPLY->buildArrays();
 	myCloudPLY->bindVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+	myShaderManager->addShaderProgram("moonShaders", "shaders/330/moon-vert.shader", "shaders/330/moon-frag.shader");
+	myCloudPLY->buildArrays();
+	myCloudPLY->bindVBO(myShaderManager->getShaderProgram("moonShaders")->programID);
 
 
 	// Load the textures for the skybox faces
@@ -226,6 +232,8 @@ void MyGLCanvas::drawScene() {
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("cloudTexture"));
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("moonTexture"));
 	//first draw the object sphere
 	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
 
@@ -400,7 +408,7 @@ void MyGLCanvas::drawScene() {
 
 	glm::mat4 cloudModelMatrix = glm::mat4(1.0f);
 	cloudModelMatrix = glm::translate(cloudModelMatrix, glm::vec3(lightPos.x+1, lightPos.y-0.25, lightPos.z));
-	cloudModelMatrix = glm::scale(cloudModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
+	cloudModelMatrix = glm::scale(cloudModelMatrix, glm::vec3(1.0f, 0.5f, 0.2f));
 
 	glUniformMatrix4fv(cloudModelLoc, 1, GL_FALSE, glm::value_ptr(cloudModelMatrix));
 	glUniformMatrix4fv(cloudViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -432,8 +440,32 @@ void MyGLCanvas::drawScene() {
         glUniformMatrix4fv(starModelLoc, 1, GL_FALSE, glm::value_ptr(starModelMatrix));
         glUniformMatrix4fv(starViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(starProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
-        mySunPLY->renderVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+        myStarPLY->renderVBO(myShaderManager->getShaderProgram("starShaders")->programID);
     }
+
+	//myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
+
+	//glUseProgram(myShaderManager->getShaderProgram("moonShaders")->programID);
+	
+	glUseProgram(myShaderManager->getShaderProgram("moonShaders")->programID);
+	GLuint moonShaderProgram = myShaderManager->getShaderProgram("moonShaders")->programID;
+
+	GLint moonModelLoc = glGetUniformLocation(moonShaderProgram, "moonModel");
+	GLint moonViewLoc = glGetUniformLocation(moonShaderProgram, "moonView");
+	GLint moonProjLoc = glGetUniformLocation(moonShaderProgram, "moonProjection");
+
+	glm::mat4 moonModelMatrix = glm::mat4(1.0f);
+	moonModelMatrix = glm::translate(moonModelMatrix, glm::vec3(-lightPos));
+	moonModelMatrix = glm::scale(moonModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f));
+
+	glUniformMatrix4fv(moonModelLoc, 1, GL_FALSE, glm::value_ptr(moonModelMatrix));
+	glUniformMatrix4fv(moonViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(moonProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+
+	GLint moonMapLoc = glGetUniformLocation(moonShaderProgram, "moonMap");
+	glUniform1i(moonMapLoc, 3);
+
+	myMoonPLY->renderVBO(myShaderManager->getShaderProgram("moonShaders")->programID);
 }
 
 void MyGLCanvas::updateCamera(int width, int height) {
@@ -527,10 +559,12 @@ void MyGLCanvas::reloadShaders() {
 	myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
 
 	myShaderManager->addShaderProgram("cloudShaders", "shaders/330/cloud-vert.shader", "shaders/330/cloud-frag.shader");
-	myRainPLY->bindVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
+	myCloudPLY->bindVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 
 	myShaderManager->addShaderProgram("starShaders", "shaders/330/stars-vert.shader", "shaders/330/stars-frag.shader");
-	myRainPLY->bindVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+	myStarPLY->bindVBO(myShaderManager->getShaderProgram("starShaders")->programID);
+	myShaderManager->addShaderProgram("moonShaders", "shaders/330/moon-vert.shader", "shaders/330/moon-frag.shader");
+	myMoonPLY->bindVBO(myShaderManager->getShaderProgram("moonShaders")->programID);
 
 	invalidate();
 }

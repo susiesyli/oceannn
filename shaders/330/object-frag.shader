@@ -208,32 +208,22 @@ void main() {
     vec4 environColor = texture(environMap, texCoord);
     vec4 objectColor = texture(objectTexture, texCoord);
     
-    // added for reflection::: 
     vec3 viewDir = normalize(viewPos - fragPosition);
     vec3 reflectDir = reflect(-viewDir, normalize(fragNormal));
     vec4 reflectedSkyColor = texture(environMap, reflectDir.xy * 0.5 + 0.5);
-    // end 
-
-    // vec4 finalTexture = mix(environColor, objectColor, textureBlend);
-    // ADDED: mix ocean with reflection of sky 
     vec4 finalTexture = mix(objectColor, reflectedSkyColor, 0.45); // how much ocean reflects sky color
-    // float fresnel = pow(1.0 - dot(viewDir, normalize(fragNormal)), 0.5);
-    // vec4 finalTexture = mix(objectColor, reflectedSkyColor, fresnel);
-
-
 
     // Lighting calculation
-    vec3 norm = normalize(fragNormal);
+    vec3 adjustedNormal = normalize(fragNormal + vec3(
+        waveAmplitude * sin(2.0 * 3.14159 * waveFrequency * fragPosition.x + time),
+        waveAmplitude * 0.5,
+        waveAmplitude * cos(2.0 * 3.14159 * waveFrequency * fragPosition.z + time)));
+
     vec3 lightDir = normalize(lightPos - fragPosition);
-    float diff = max(dot(norm, lightDir), 0.0);
+    float diff = max(dot(adjustedNormal, lightDir), 0.0);
 
-
-    // Scale diffuse lighting by lightIntensity
-    // vec3 diffuseLight = lightIntensity * diff * vec3(1.0, 1.0, 1.0); 
-    // ADDED: blend in sky color 
     vec3 skyLightColor = texture(environMap, lightDir.xy * 0.5 + 0.5).rgb;
     vec3 diffuseLight = lightIntensity * diff * skyLightColor;
-
 
     // Beam effect
     vec3 horizontalLightPos = vec3(lightPos.x, 0.0, lightPos.z);
@@ -246,23 +236,15 @@ void main() {
     vec3 closestPointOnBeam = horizontalLightPos + beamProj * beamDir;
     float distanceToBeam = length(horizontalFragPos - closestPointOnBeam);
 
-    // Beam attenuation based on distance
     float beamRadius = 0.3;
     float beamFalloff = 4.0;
     float beamIntensity = clamp(exp(-distanceToBeam * beamFalloff), 0.0, 0.35f);  // clamp to soften beam intensity 
-    // Smooth the edges of the beam
     beamIntensity *= smoothstep(0.0, beamRadius, beamRadius - distanceToBeam);
     
-    // scale beam with sun angle (stronger at lower sun angles)
     float sunAngleFactor = 1.0 - clamp(lightPos.y / 10.0, 0.0, 1.0); 
     beamIntensity *= sunAngleFactor;
     beamIntensity *= lightIntensity; // Scale with light intensity
 
-    // Increase beam intensity based on the y-position of the light
-    // float heightFactor = lightPos.y * 0.5;
-    // beamIntensity *= lightIntensity * (1.0 + heightFactor); // beam intensity! control by height and light intensity 
-    // float sunElevationFactor = clamp(lightPos.y, 0.0, 1.0); // Scale with sun height (0 = horizon, 1 = top)
-    // beamIntensity *= sunElevationFactor;
     float sunVisibility = step(0.0, lightPos.y);  // 1.0 if sun is above horizon, 0 otherwise
     beamIntensity *= sunVisibility;
     beamIntensity = clamp(beamIntensity, 0.0, 0.5); // last clamp 
@@ -273,10 +255,6 @@ void main() {
     vec3 lightingEffect = diffuseLight + beamLight;
     vec4 diffuseColor = vec4(lightingEffect, 1.0);
     vec3 finalColor = (finalTexture.rgb * lightingEffect);
-
-    // ADDED: horizon blending effect  
-    // vec3 horizonColor = texture(environMap, vec2(0.05, 0.05)).rgb;
-    // finalColor = mix(finalColor, horizonColor, 0.1);
 
     if (useFog) {
         // Calculate distance-based fog factor

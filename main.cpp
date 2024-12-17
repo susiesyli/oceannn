@@ -188,7 +188,7 @@ MyAppWindow::MyAppWindow(int W, int H, const char* L) : Fl_Window(W, H, L) {
     lightAngleSlider->color(FL_WHITE);
     lightAngleSlider->align(FL_ALIGN_TOP);
     lightAngleSlider->type(FL_HOR_SLIDER);
-    lightAngleSlider->bounds(-100, 100);
+    lightAngleSlider->bounds(-360, 360);
     lightAngleSlider->step(1);
     lightAngleSlider->value(canvas->lightAngle);
     lightAngleSlider->callback(floatCB, (void*)(&(canvas->lightAngle)));
