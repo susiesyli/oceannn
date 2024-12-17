@@ -48,12 +48,7 @@ MyGLCanvas::MyGLCanvas(int x, int y, int w, int h, const char* l) : Fl_Gl_Window
 	myEnvironmentPLY = new ply("./data/sphere.ply");
 	mySunPLY = new ply("./data/sphere.ply");
 	myRainPLY = new ply("./data/sphere.ply");
-	// mySkyboxPLY = new ply("./data/cube.ply");
-
-	// mySkybox = new SkyBox(&eyePosition, &lookatPoint, perspectiveMatrix);  // Pass eyePosition, lookatPoint, and perspectiveMatrix directly
-	// if (!mySkybox->Init("./data/", "left.ppm", "right.ppm", "top.ppm", "bottom.ppm", "front.ppm", "back.ppm")) {
-	//     std::cerr << "Failed to initialize skybox!" << std::endl;
-	// }
+	myCloudPLY = new ply("./data/sphere.ply");
 
 	initDrops();
 }
@@ -87,6 +82,11 @@ void MyGLCanvas::initShaders() {
 	myShaderManager->addShaderProgram("rainShaders", "shaders/330/rain-vert.shader", "shaders/330/rain-frag.shader");
 	myRainPLY->buildArrays();
 	myRainPLY->bindVBO(myShaderManager->getShaderProgram("rainShaders")->programID);
+
+	myShaderManager->addShaderProgram("cloudShaders", "shaders/330/cloud-vert.shader", "shaders/330/cloud-frag.shader");
+	myCloudPLY->buildArrays();
+	myCloudPLY->bindVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
+
 
 	// Load the textures for the skybox faces
 	// myTextureManager->loadTexture("skyboxLeft", "./data/left.ppm");
@@ -373,6 +373,23 @@ void MyGLCanvas::drawScene() {
 	glUniformMatrix4fv(sunViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(sunProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 	mySunPLY->renderVBO(myShaderManager->getShaderProgram("sunShaders")->programID);
+
+	glUseProgram(myShaderManager->getShaderProgram("cloudShaders")->programID);
+	GLuint cloudShaderProgram = myShaderManager->getShaderProgram("cloudShaders")->programID;
+
+	GLint cloudModelLoc = glGetUniformLocation(cloudShaderProgram, "cloudModel");
+	GLint cloudViewLoc = glGetUniformLocation(cloudShaderProgram, "cloudView");
+	GLint cloudProjLoc = glGetUniformLocation(cloudShaderProgram, "cloudProjection");
+
+	glm::mat4 cloudModelMatrix = glm::mat4(1.0f);
+	cloudModelMatrix = glm::translate(cloudModelMatrix, glm::vec3(lightPos));
+	cloudModelMatrix = glm::scale(cloudModelMatrix, glm::vec3(1.5f, 0.25f, 5.0f));
+
+	glUniformMatrix4fv(cloudModelLoc, 1, GL_FALSE, glm::value_ptr(cloudModelMatrix));
+	glUniformMatrix4fv(cloudViewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(cloudProjLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+
+	myCloudPLY->renderVBO(myShaderManager->getShaderProgram("cloudShaders")->programID);
 }
 
 void MyGLCanvas::updateCamera(int width, int height) {
